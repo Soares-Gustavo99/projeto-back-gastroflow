@@ -1,0 +1,114 @@
+openapi: 3.0.0
+info:
+  title: Estoque Auth API
+  description: API de autenticação para o sistema de estoque.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/v1/api
+    description: Servidor de desenvolvimento
+paths:
+  /auth/register:
+    post:
+      summary: Registra um novo usuário
+      description: Cria uma nova conta de usuário com as informações fornecidas.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Usuário criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Requisição inválida
+        '409':
+          description: Email já registrado
+  /auth/login:
+    post:
+      summary: Autentica um usuário
+      description: Realiza o login de um usuário e retorna seus dados.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login bem-sucedido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Credenciais inválidas
+components:
+  schemas:
+    RegisterRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: João Silva
+        email:
+          type: string
+          format: email
+          example: joao.silva@email.com
+        password:
+          type: string
+          format: password
+          example: S3nh@F0rt3!
+        picture:
+          type: string
+          example: url_da_imagem
+      required:
+        - name
+        - email
+        - password
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: joao.silva@email.com
+        password:
+          type: string
+          format: password
+          example: S3nh@F0rt3!
+      required:
+        - email
+        - password
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174000
+        name:
+          type: string
+          example: João Silva
+        email:
+          type: string
+          format: email
+          example: joao.silva@email.com
+        accessLevel:
+          type: string
+          enum:
+            - USER
+            - ADMIN
+          example: USER
+        picture:
+          type: string
+          example: url_da_imagem
+      required:
+        - id
+        - name
+        - email
+        - accessLevel
