@@ -1,6 +1,15 @@
 package com.fiec.projeto_back_gastroflow.features.user.models;
 
-public enum UserLevel {
+import org.springframework.security.core.GrantedAuthority;
+
+public enum UserLevel implements GrantedAuthority {
     USER,
-    ADMIN
+    ADMIN;
+
+    private String authority;
+
+    @Override
+    public String getAuthority() {
+        return authority;
+    }
 }

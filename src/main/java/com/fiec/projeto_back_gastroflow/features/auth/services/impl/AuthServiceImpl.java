@@ -8,10 +8,7 @@ import com.fiec.projeto_back_gastroflow.features.user.models.UserLevel;
 import com.fiec.projeto_back_gastroflow.features.user.services.UserService;
 import com.fiec.projeto_back_gastroflow.utils.PasswordEncryptor;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class AuthServiceImpl implements AuthService {
