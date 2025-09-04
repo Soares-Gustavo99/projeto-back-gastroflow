@@ -2,10 +2,10 @@ package com.fiec.projeto_back_gastroflow.features.receita.services.impl;
 
 
 //COLOCAR OS IMPORTS DOS PRODUTOS ASSIM QUE MIGRAR ELES DO GASTROFLOWBE
+import com.fiec.projeto_back_gastroflow.features.products.models.Produto;
+import com.fiec.projeto_back_gastroflow.features.products.repositories.ProdutoRepository;
 import com.fiec.projeto_back_gastroflow.features.receita.dto.ReceitaDTO;
-import com.fiec.projeto_back_gastroflow.features.produto.models.Produto;
 import com.fiec.projeto_back_gastroflow.features.receita.models.Receita;
-import com.fiec.projeto_back_gastroflow.features.produto.repositories.ProdutoRepository;
 import com.fiec.projeto_back_gastroflow.features.receita.repositories.ReceitaRepository;
 import com.fiec.projeto_back_gastroflow.features.receita.services.ReceitaService;
 

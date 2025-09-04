@@ -1,5 +1,6 @@
 package com.fiec.projeto_back_gastroflow.features.receita.models;
 
+import com.fiec.projeto_back_gastroflow.features.products.models.Produto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
