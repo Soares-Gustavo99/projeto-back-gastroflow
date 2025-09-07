@@ -36,8 +36,6 @@ public class AulaServiceImpl implements AulaService {
         aulaRepository.save(aula);
 
     }
-
-    //MÉTODO GET POR ID
     @Override
     public AulaDTO getById(Long id) {
         return aulaRepository.findById(id).map( aula -> {
