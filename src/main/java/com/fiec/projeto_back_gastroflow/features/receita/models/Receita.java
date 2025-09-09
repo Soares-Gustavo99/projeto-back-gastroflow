@@ -1,12 +1,14 @@
 package com.fiec.projeto_back_gastroflow.features.receita.models;
 
 import com.fiec.projeto_back_gastroflow.features.products.models.Produto;
+import com.fiec.projeto_back_gastroflow.features.user.models.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -21,8 +23,17 @@ public class Receita {
 
     private String nome;
     private String descricao;
-    private String tempoPreparo;
-    private String textoPreparo;
+    private Integer tempoPreparo;
+    private Integer rendimento;
+    private String tipo;
+    private Date dataAlteracao;
+    private String usuarioAlteracao;
+    private Date dataCadastro;
+    private Integer professorReceita;
+
+    @ManyToOne
+    @JoinColumn(name = "fk_usuario_id") // nome da coluna no banco
+    private User user;
 
     @ManyToMany
     @JoinTable(

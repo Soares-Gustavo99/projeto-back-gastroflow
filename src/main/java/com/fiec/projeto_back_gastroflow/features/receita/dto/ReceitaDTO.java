@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
 import java.util.List;
 
 
@@ -17,9 +18,22 @@ public class ReceitaDTO {
 
     private String descricao;
 
-    private String tempoPreparo;
+    private Integer tempoPreparo;
 
-    private String textoPreparo;
+    private Integer rendimento;
+
+    private String tipo;
+
+    private Date dataAlteracao;
+
+    private String usuarioAlteracao;
+
+    private Date dataCadastro;
+
+    private Integer professorReceita;
+
+
+    private Long userId;
 
     private List<Long> produtoIds; // apenas IDs, relacão N:N
 }
