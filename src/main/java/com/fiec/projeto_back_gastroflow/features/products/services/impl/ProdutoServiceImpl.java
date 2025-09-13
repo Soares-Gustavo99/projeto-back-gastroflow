@@ -5,29 +5,33 @@ import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoDTO;
 import com.fiec.projeto_back_gastroflow.features.products.models.Produto;
 import com.fiec.projeto_back_gastroflow.features.products.repositories.ProdutoRepository;
 import com.fiec.projeto_back_gastroflow.features.products.services.ProdutoService;
+import com.fiec.projeto_back_gastroflow.features.user.models.User;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class ProdutoServiceImpl implements ProdutoService {
 
     private final ProdutoRepository produtoRepository;
 
 
     // Criar Produto
-    public void createProduto(ProdutoDTO produtoDTO) {
-        Produto produto = new Produto(
-                null,
-                produtoDTO.getNome(),
-                produtoDTO.getCategoria(),
-                produtoDTO.getQuantidadeEstoque(),
-                produtoDTO.getUnidadeMedida(),
-                produtoDTO.getValidade(),
-                null // a lista de receitas será setada pelo ReceitaService
-        );
+
+    public void createProduto(ProdutoDTO produtoDTO, User userDetails) {
+        log.info("createProduto - parâmetro: {}, by {}", produtoDTO, userDetails.getId());
+        Produto produto = Produto.builder()
+                .categoria(produtoDTO.getCategoria())
+                .nome(produtoDTO.getNome())
+
+                .build();
+        produto.setCreatedBy(userDetails);
+
 
         produtoRepository.save(produto);
     }
