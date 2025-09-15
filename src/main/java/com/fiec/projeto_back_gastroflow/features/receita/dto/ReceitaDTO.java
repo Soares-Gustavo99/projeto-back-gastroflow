@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 
 @Data
@@ -33,7 +34,7 @@ public class ReceitaDTO {
     private Integer professorReceita;
 
 
-    private Long userId;
+    private UUID userId;
 
     private List<Long> produtoIds; // apenas IDs, relacão N:N
 }

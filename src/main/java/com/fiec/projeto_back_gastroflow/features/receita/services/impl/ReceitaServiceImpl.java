@@ -43,8 +43,8 @@ public class ReceitaServiceImpl implements ReceitaService {
         }
 
         // Relacionar produtos
-        if (receitaDTO.getProdutosIds() != null) {
-            List<Produto> produtos = produtoRepository.findAllById(receitaDTO.getProdutosIds());
+        if (receitaDTO.getProdutoIds() != null) {
+            List<Produto> produtos = produtoRepository.findAllById(receitaDTO.getProdutoIds());
             receita.setProdutos(produtos);
         }
 
@@ -70,7 +70,7 @@ public class ReceitaServiceImpl implements ReceitaService {
                 dto.setUserId(receita.getUser().getId());
             }
 
-            dto.setProdutosIds(
+            dto.setProdutoIds(
                     receita.getProdutos().stream().map(Produto::getId).toList()
             );
             return dto;
@@ -96,7 +96,7 @@ public class ReceitaServiceImpl implements ReceitaService {
                 dto.setUserId(receita.getUser().getId());
             }
 
-            dto.setProdutosIds(
+            dto.setProdutoIds(
                     receita.getProdutos().stream().map(Produto::getId).toList()
             );
             return dto;
@@ -124,8 +124,8 @@ public class ReceitaServiceImpl implements ReceitaService {
             }
 
             // Atualizar produtos
-            if (receitaDTO.getProdutosIds() != null) {
-                List<Produto> produtos = produtoRepository.findAllById(receitaDTO.getProdutosIds());
+            if (receitaDTO.getProdutoIds() != null) {
+                List<Produto> produtos = produtoRepository.findAllById(receitaDTO.getProdutoIds());
                 receita.setProdutos(produtos);
             }
 
