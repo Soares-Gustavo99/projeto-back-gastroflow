@@ -1,6 +1,10 @@
 package com.fiec.projeto_back_gastroflow.features.user.services;
 
 
+import com.fiec.projeto_back_gastroflow.features.user.dto.CreatedUserResponseDto;
+import com.fiec.projeto_back_gastroflow.features.user.dto.RegisterAdminDto;
+import com.fiec.projeto_back_gastroflow.features.user.dto.RegisterGuestDto;
+import com.fiec.projeto_back_gastroflow.features.user.dto.RegisterStandardDto;
 import com.fiec.projeto_back_gastroflow.features.user.models.User;
 
 import java.util.List;
@@ -13,5 +17,8 @@ public interface UserService {
     Optional<User> findByEmail(String email);
     List<User> findAll();
     User update(UUID id, User updatedUser);
+    CreatedUserResponseDto saveAdmin(RegisterAdminDto registerAdminDto);
+    CreatedUserResponseDto saveStandard(RegisterStandardDto registerStandardDto);
+    CreatedUserResponseDto saveGuest(RegisterGuestDto registerGuestDto);
     void deleteById(UUID id);
 }
