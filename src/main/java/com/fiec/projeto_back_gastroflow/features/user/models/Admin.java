@@ -1,5 +1,6 @@
 package com.fiec.projeto_back_gastroflow.features.user.models;
 
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import java.util.UUID;
 @Setter
 @Entity
 public class Admin extends SystemUser {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -25,4 +27,5 @@ public class Admin extends SystemUser {
     )
     List<Guest> guests;
 }
+
 
