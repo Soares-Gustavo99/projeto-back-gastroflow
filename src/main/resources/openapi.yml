@@ -47,6 +47,47 @@ paths:
                 $ref: '#/components/schemas/User'
         '401':
           description: Credenciais inválidas
+
+
+
+  /users/admin:
+    post:
+      summary: Registra um novo administrador
+      operationId: registerAdmin
+      requestBody:
+        description: Dados do administrador a ser registrado
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterAdminDto'
+      responses:
+        '201':
+          description: Usuário administrador criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatedUserResponseDto'
+        '400':
+          description: Requisição inválida (falha na validação)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  timestamp:
+                    type: string
+                    format: date-time
+                  status:
+                    type: integer
+                  error:
+                    type: string
+                  message:
+                    type: string
+                  path:
+                    type: string
+
+
 components:
   schemas:
     RegisterRequest:

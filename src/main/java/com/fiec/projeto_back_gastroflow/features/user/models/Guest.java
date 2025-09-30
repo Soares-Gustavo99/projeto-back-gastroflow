@@ -1,7 +1,7 @@
 package com.fiec.projeto_back_gastroflow.features.user.models;
 
-
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,8 +11,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-public class Admin extends SystemUser {
-
+public class Guest extends SystemUser{
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -20,12 +19,6 @@ public class Admin extends SystemUser {
     private UUID id;
 
     @ManyToMany
-    @JoinTable(
-            name = "guest_admin_relationship",
-            joinColumns = @JoinColumn(name = "admin_id"),
-            inverseJoinColumns = @JoinColumn(name = "guest_id")
-    )
-    List<Guest> guests;
+    List<Admin> admins;
+
 }
-
-
