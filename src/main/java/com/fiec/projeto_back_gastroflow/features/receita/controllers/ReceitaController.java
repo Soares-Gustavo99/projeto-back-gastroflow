@@ -26,7 +26,7 @@ public class ReceitaController {
 
     // Buscar receita por ID
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("hasAnyRole('ADMIN','STANDARD')")
     public ResponseEntity<ReceitaDTO> getById(@PathVariable Long id) {
         ReceitaDTO receita = receitaService.getById(id);
         if (receita == null) {
@@ -37,7 +37,7 @@ public class ReceitaController {
 
     // Listar todas as receitas
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("hasAnyRole('ADMIN','STANDARD')")
     public ResponseEntity<List<ReceitaDTO>> findAll() {
         return ResponseEntity.ok(receitaService.findAll());
     }

@@ -27,7 +27,7 @@ public class AulaController {
     }
     //LISTAR AULA POR ID
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("hasAnyRole('ADMIN','STANDARD')")
     public ResponseEntity<AulaDTO> getById(@PathVariable Long id) {
         AulaDTO aula = aulaService.getById(id);
         if (aula == null) {
@@ -38,7 +38,7 @@ public class AulaController {
 
     //LISTAR TODAS AS AULAS
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("hasAnyRole('ADMIN','STANDARD')")
     public ResponseEntity<List<AulaDTO>> findAll() {
         return ResponseEntity.ok(aulaService.findAll());
     }
