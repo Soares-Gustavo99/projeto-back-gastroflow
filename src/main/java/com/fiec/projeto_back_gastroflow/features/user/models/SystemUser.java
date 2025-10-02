@@ -8,8 +8,9 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@Entity // Adicione esta anotação
-@Inheritance(strategy = InheritanceType.JOINED) // Ou outro tipo de estratégia, como SINGLE_TABLE ou TABLE_PER_CLASS
+// @Entity // Adicione esta anotação
+// @Inheritance(strategy = InheritanceType.JOINED) // Ou outro tipo de estratégia, como SINGLE_TABLE ou TABLE_PER_CLASS
+@MappedSuperclass
 public abstract class SystemUser {
 
     @Id
