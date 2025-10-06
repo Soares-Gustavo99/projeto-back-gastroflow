@@ -27,7 +27,7 @@ public class AuthServiceImpl implements AuthService {
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(request.getPassword());
-        user.setAccessLevel(UserLevel.USER); // Define o nível de acesso padrão
+        user.setAccessLevel(UserLevel.ROLE_STANDARD); // Define o nível de acesso padrão
         user.setPicture(request.getPicture());
 
         return userService.save(user);

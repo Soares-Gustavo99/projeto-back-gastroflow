@@ -1,9 +1,6 @@
 package com.fiec.projeto_back_gastroflow.features.user.services.impl;
 
-import com.fiec.projeto_back_gastroflow.features.user.dto.CreatedUserResponseDto;
-import com.fiec.projeto_back_gastroflow.features.user.dto.RegisterAdminDto;
-import com.fiec.projeto_back_gastroflow.features.user.dto.RegisterGuestDto;
-import com.fiec.projeto_back_gastroflow.features.user.dto.RegisterStandardDto;
+import com.fiec.projeto_back_gastroflow.features.user.dto.*;
 import com.fiec.projeto_back_gastroflow.features.user.models.*;
 import com.fiec.projeto_back_gastroflow.features.user.repositories.AdminRepository;
 import com.fiec.projeto_back_gastroflow.features.user.repositories.GuestRepository;
@@ -81,7 +78,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         User user = new User();
         user.setEmail(registerAdminDto.getEmail());
         user.setPassword(registerAdminDto.getPassword());
-        user.setAccessLevel(UserLevel.ADMIN);
+        user.setAccessLevel(UserLevel.ROLE_ADMIN);
         User savedUser = save(user);
         Admin admin = new Admin();
         admin.setUser(savedUser);
@@ -101,7 +98,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         User user = new User();
         user.setEmail(registerStandardDto.getEmail());
         user.setPassword(registerStandardDto.getPassword());
-        user.setAccessLevel(UserLevel.USER);
+        user.setAccessLevel(UserLevel.ROLE_STANDARD);
         User savedUser = save(user);
         Standard standard = new Standard();
         standard.setUser(savedUser);
@@ -121,7 +118,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         User user = new User();
         user.setEmail(registerGuestDto.getEmail());
         user.setPassword(registerGuestDto.getPassword());
-        user.setAccessLevel(UserLevel.ADMIN);
+        user.setAccessLevel(UserLevel.ROLE_GUEST);
         User savedUser = save(user);
         Guest guest = new Guest();
         guest.setUser(savedUser);
@@ -142,5 +139,28 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return null;
+    }
+
+    @Override
+    public MyUserDto getMe(User user) {
+        UserLevel tipoUsuario = user.getAccessLevel();
+        MyUserDto myUserDto = null;
+        if(UserLevel.ROLE_ADMIN.equals(tipoUsuario)){
+            Admin admin = adminRepository.findByUser(user).orElseThrow();
+            myUserDto = new MyUserDto();
+            myUserDto.setTipo("ADMIN");
+        } else if(UserLevel.ROLE_STANDARD.equals(tipoUsuario)){
+            Standard standard = standardRepository.findByUser(user).orElseThrow();
+            myUserDto = new MyUserDto();
+            myUserDto.setTipo("STANDARD");
+        } else {
+            Guest guest = guestRepository.findByUser(user).orElseThrow();
+            myUserDto = new MyUserDto();
+            myUserDto.setNome(guest.getName());
+            myUserDto.setTipo("GUEST");
+        }
+        myUserDto.setPicture(user.getPicture());
+        myUserDto.setEmail(user.getEmail());
+        return myUserDto;
     }
 }

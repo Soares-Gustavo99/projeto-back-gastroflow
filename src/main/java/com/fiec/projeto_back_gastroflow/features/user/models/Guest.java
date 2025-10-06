@@ -16,4 +16,6 @@ public class Guest extends SystemUser{
     @ManyToMany
     List<Admin> admins;
 
+    String name;
+
 }

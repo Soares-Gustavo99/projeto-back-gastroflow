@@ -1,16 +1,12 @@
 package com.fiec.projeto_back_gastroflow.features.user.controllers;
 
-import com.fiec.projeto_back_gastroflow.features.user.dto.CreatedUserResponseDto;
-import com.fiec.projeto_back_gastroflow.features.user.dto.RegisterAdminDto;
-import com.fiec.projeto_back_gastroflow.features.user.dto.RegisterGuestDto;
-import com.fiec.projeto_back_gastroflow.features.user.dto.RegisterStandardDto;
+import com.fiec.projeto_back_gastroflow.features.user.dto.*;
+import com.fiec.projeto_back_gastroflow.features.user.models.User;
 import com.fiec.projeto_back_gastroflow.features.user.services.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/v1/api/users")
@@ -32,5 +28,11 @@ public class UserController {
     @PostMapping("/guest")
     public void registerGuest(@Valid @RequestBody RegisterGuestDto registerGuestDto){
 
+    }
+
+    @GetMapping("/me")
+    public MyUserDto getMe(Authentication authentication){
+        User user = (User) authentication.getPrincipal();
+        return userService.getMe(user);
     }
 }
