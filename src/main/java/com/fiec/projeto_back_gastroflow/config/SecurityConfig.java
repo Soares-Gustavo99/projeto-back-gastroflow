@@ -40,7 +40,7 @@ public class SecurityConfig {
                 })
                 .authenticationProvider(authenticationProvider)
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers(
+                        .requestMatchers("/images/**",
                                 "/v1/api/auth/**",
                                 "v1/api/users/admin/**",
                                 "v1/api/users/standard/**",

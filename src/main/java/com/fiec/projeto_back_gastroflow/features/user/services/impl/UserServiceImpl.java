@@ -32,9 +32,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public User save(User user) {
         // Criptografa a senha antes de salvar
-        if (user.getPassword() != null) {
-            user.setPassword(PasswordEncryptor.encrypt(user.getPassword()));
-        }
         return userRepository.save(user);
     }
 
@@ -77,7 +74,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
         User user = new User();
         user.setEmail(registerAdminDto.getEmail());
-        user.setPassword(registerAdminDto.getPassword());
+        user.setPassword(PasswordEncryptor.encrypt(registerAdminDto.getPassword()));
+        user.setName(registerAdminDto.getName());
         user.setAccessLevel(UserLevel.ROLE_ADMIN);
         User savedUser = save(user);
         Admin admin = new Admin();
@@ -97,7 +95,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
         User user = new User();
         user.setEmail(registerStandardDto.getEmail());
-        user.setPassword(registerStandardDto.getPassword());
+        user.setPassword(PasswordEncryptor.encrypt(registerStandardDto.getPassword()));
+        user.setName(registerStandardDto.getName());
         user.setAccessLevel(UserLevel.ROLE_STANDARD);
         User savedUser = save(user);
         Standard standard = new Standard();
@@ -117,7 +116,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
         User user = new User();
         user.setEmail(registerGuestDto.getEmail());
-        user.setPassword(registerGuestDto.getPassword());
+        user.setPassword(PasswordEncryptor.encrypt(registerGuestDto.getPassword()));
+        user.setName(registerGuestDto.getName());
         user.setAccessLevel(UserLevel.ROLE_GUEST);
         User savedUser = save(user);
         Guest guest = new Guest();

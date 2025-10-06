@@ -1,5 +1,6 @@
 package com.fiec.projeto_back_gastroflow.config;
 
+import com.fiec.projeto_back_gastroflow.utils.PasswordEncryptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,6 +35,8 @@ public class ApplicationConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return PasswordEncryptor.getInstance();
+
+
     }
 }

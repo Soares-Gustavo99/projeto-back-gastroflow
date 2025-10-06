@@ -42,6 +42,9 @@ public class User implements UserDetails {
     @Column
     private String picture;
 
+    @Column
+    private RegisterState state;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
