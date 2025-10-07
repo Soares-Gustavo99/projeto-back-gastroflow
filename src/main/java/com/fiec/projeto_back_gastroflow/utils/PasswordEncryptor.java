@@ -11,8 +11,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public final class PasswordEncryptor {
 
     // Instância única do PasswordEncoder, thread-safe.
-    private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private static PasswordEncoder passwordEncoder;
 
+    public static PasswordEncoder getInstance(){
+        if(passwordEncoder == null){
+            passwordEncoder = new BCryptPasswordEncoder();
+        }
+        return passwordEncoder;
+    }
     /**
      * Construtor privado para evitar a instanciação da classe de utilidade.
      */
