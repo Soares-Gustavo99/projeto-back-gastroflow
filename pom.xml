@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.fiec</groupId>
-	<artifactId>estoqueback</artifactId>
+	<artifactId>gastroflow</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>estoqueback</name>
+	<name>gastroflow</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>
