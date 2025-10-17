@@ -6,6 +6,7 @@ import com.fiec.projeto_back_gastroflow.features.auth.dto.RegisterRequest;
 import com.fiec.projeto_back_gastroflow.features.auth.services.AuthService;
 import com.fiec.projeto_back_gastroflow.features.user.models.User;
 import com.fiec.projeto_back_gastroflow.utils.JwtService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping("/v1/api/auth")
 public class AuthController {
@@ -34,6 +36,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+        log.info("AuthController - login - usuario tentou logar com {}", request);
         User loggedInUser = authService.login(request);
         String jwtToken = this.jwtService.generateToken(loggedInUser);
         LoginResponse response = new LoginResponse();
