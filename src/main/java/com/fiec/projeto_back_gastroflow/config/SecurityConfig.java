@@ -47,7 +47,7 @@ public class SecurityConfig {
                                 "v1/api/users/guest/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/actuator/health"
+                                "/actuator/health", "/v1/api/notifications/sendToUser"
                         ).permitAll()
                         .anyRequest().authenticated()
                 ).sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

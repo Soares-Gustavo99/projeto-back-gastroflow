@@ -1,6 +1,7 @@
 package com.fiec.projeto_back_gastroflow.features.user.services;
 
 
+import com.fiec.projeto_back_gastroflow.features.firebase.models.dto.FcmTokenRequest;
 import com.fiec.projeto_back_gastroflow.features.user.dto.*;
 import com.fiec.projeto_back_gastroflow.features.user.models.User;
 
@@ -19,4 +20,5 @@ public interface UserService {
     CreatedUserResponseDto saveGuest(RegisterGuestDto registerGuestDto);
     void deleteById(UUID id);
     MyUserDto getMe(User user);
+    User updateFcmToken(UUID userId, FcmTokenRequest request);
 }
