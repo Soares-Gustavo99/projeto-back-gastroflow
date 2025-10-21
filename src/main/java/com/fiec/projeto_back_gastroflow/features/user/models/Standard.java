@@ -15,9 +15,9 @@ public class Standard extends SystemUser {
 
     @ManyToMany
     @JoinTable(
-            name = "supplier_admin_relationship",
+            name = "standard_admin_relationship",
             joinColumns = @JoinColumn(name = "admin_id"),
-            inverseJoinColumns = @JoinColumn(name = "supplier_id")
+            inverseJoinColumns = @JoinColumn(name = "standard_id")
     )
     List<Guest> guests;
 }

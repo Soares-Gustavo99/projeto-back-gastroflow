@@ -13,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Guest extends SystemUser{
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "guests")
     List<Admin> admins;
 
     String name;

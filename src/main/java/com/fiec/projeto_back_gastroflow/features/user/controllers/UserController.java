@@ -29,8 +29,8 @@ public class UserController {
     }
 
     @PostMapping("/guest")
-    public void registerGuest(@Valid @RequestBody RegisterGuestDto registerGuestDto){
-
+    public CreatedUserResponseDto registerGuest(@Valid @RequestBody RegisterGuestDto registerGuestDto){
+        return userService.saveGuest(registerGuestDto);
     }
 
     @GetMapping("/me")
