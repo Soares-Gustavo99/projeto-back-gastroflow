@@ -45,6 +45,9 @@ public class User implements UserDetails {
     @Column
     private RegisterState state;
 
+    @Column
+    private String fcmToken;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -57,4 +60,6 @@ public class User implements UserDetails {
     public String getUsername() {
         return email;
     }
+
+
 }

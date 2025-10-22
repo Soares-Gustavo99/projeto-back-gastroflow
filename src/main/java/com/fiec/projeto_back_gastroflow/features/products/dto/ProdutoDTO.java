@@ -1,5 +1,6 @@
 package com.fiec.projeto_back_gastroflow.features.products.dto;
 
+import com.fiec.projeto_back_gastroflow.features.products.models.UnidadeMedida;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,7 @@ public class ProdutoDTO {
 
     private Integer quantidadeEstoque;
 
-    private String unidadeMedida;
+    private UnidadeMedida unidadeMedida;
 
     private Date validade;
 

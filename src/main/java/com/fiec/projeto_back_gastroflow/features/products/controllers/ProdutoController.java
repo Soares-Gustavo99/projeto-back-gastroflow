@@ -14,7 +14,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping(value = "produto")
+@RequestMapping(value = "/produtos")
 public class ProdutoController {
 
     private final ProdutoServiceImpl produtoService;
@@ -58,7 +58,7 @@ public class ProdutoController {
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping()
     @PreAuthorize("hasAnyRole('ADMIN','STANDARD')")
-    public void deleteClienteById(@RequestParam Long id){
+    public void deleteProdutoById(@RequestParam Long id){
         produtoService.deleteProdutoById(id);
     }
 }

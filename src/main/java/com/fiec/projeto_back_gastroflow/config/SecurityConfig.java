@@ -4,6 +4,7 @@ import com.fiec.projeto_back_gastroflow.config.filters.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -19,6 +20,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final AuthenticationProvider authenticationProvider;
@@ -51,6 +53,15 @@ public class SecurityConfig {
                                         "/actuator/health"
                                 ).permitAll()
 
+                        .requestMatchers("/images/**",
+                                "/v1/api/auth/**",
+                                "v1/api/users/admin/**",
+                                "v1/api/users/standard/**",
+                                "v1/api/users/guest/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/actuator/health", "/v1/api/notifications/sendToUser"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 ).sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
