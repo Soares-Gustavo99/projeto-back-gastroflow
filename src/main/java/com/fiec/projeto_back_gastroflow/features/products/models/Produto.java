@@ -31,7 +31,7 @@ public class Produto {
     private Integer quantidadeEstoque;
 
     @Column(nullable = false)
-    private String unidadeMedida;
+    private UnidadeMedida unidadeMedida;
 
     @Column(nullable = false)
     private Date validade;
@@ -41,7 +41,7 @@ public class Produto {
 
 
 
-    public Produto(String nome, String categoria, Integer quantidadeEstoque, String unidadeMedida, Date validade) {
+    public Produto(String nome, String categoria, Integer quantidadeEstoque, UnidadeMedida unidadeMedida, Date validade) {
         setNome(nome);
         setCategoria(categoria);
         setQuantidadeEstoque(quantidadeEstoque);
