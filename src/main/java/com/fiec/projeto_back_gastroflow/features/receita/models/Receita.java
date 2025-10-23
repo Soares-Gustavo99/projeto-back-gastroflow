@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,8 +28,12 @@ public class Receita {
     private Integer tempoPreparo;
     private Integer rendimento;
     private String tipo;
+
+    @UpdateTimestamp
     private Date dataAlteracao;
     private String usuarioAlteracao;
+
+    @CreationTimestamp
     private Date dataCadastro;
     private Integer professorReceita;
 

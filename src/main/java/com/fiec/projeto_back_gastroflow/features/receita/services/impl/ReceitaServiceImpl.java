@@ -23,24 +23,20 @@ public class ReceitaServiceImpl implements ReceitaService {
     private final UserRepository userRepository;
 
     @Override
-    public void createReceita(ReceitaDTO receitaDTO) {
+    public void createReceita(ReceitaDTO receitaDTO, java.util.UUID usuarioId) {
         Receita receita = new Receita();
         receita.setNome(receitaDTO.getNome());
         receita.setDescricao(receitaDTO.getDescricao());
         receita.setTempoPreparo(receitaDTO.getTempoPreparo());
         receita.setRendimento(receitaDTO.getRendimento());
         receita.setTipo(receitaDTO.getTipo());
-        receita.setDataAlteracao(receitaDTO.getDataAlteracao());
         receita.setUsuarioAlteracao(receitaDTO.getUsuarioAlteracao());
-        receita.setDataCadastro(receitaDTO.getDataCadastro());
         receita.setProfessorReceita(receitaDTO.getProfessorReceita());
 
         // Relacionar usuário
-        if (receitaDTO.getUserId() != null) {
-            User user = userRepository.findById(receitaDTO.getUserId())
-                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-            receita.setUser(user);
-        }
+        User user = userRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Erro de Autenticação: Usuário logado não encontrado."));
+        receita.setUser(user);
 
         // Relacionar produtos
         if (receitaDTO.getProdutoIds() != null) {
@@ -55,7 +51,6 @@ public class ReceitaServiceImpl implements ReceitaService {
     public ReceitaDTO getById(Long id) {
         return receitaRepository.findById(id).map(receita -> {
             ReceitaDTO dto = new ReceitaDTO();
-            dto.setId(receita.getId());
             dto.setNome(receita.getNome());
             dto.setDescricao(receita.getDescricao());
             dto.setTempoPreparo(receita.getTempoPreparo());
@@ -81,7 +76,6 @@ public class ReceitaServiceImpl implements ReceitaService {
     public List<ReceitaDTO> findAll() {
         return receitaRepository.findAll().stream().map(receita -> {
             ReceitaDTO dto = new ReceitaDTO();
-            dto.setId(receita.getId());
             dto.setNome(receita.getNome());
             dto.setDescricao(receita.getDescricao());
             dto.setTempoPreparo(receita.getTempoPreparo());
@@ -111,9 +105,7 @@ public class ReceitaServiceImpl implements ReceitaService {
             receita.setTempoPreparo(receitaDTO.getTempoPreparo());
             receita.setRendimento(receitaDTO.getRendimento());
             receita.setTipo(receitaDTO.getTipo());
-            receita.setDataAlteracao(receitaDTO.getDataAlteracao());
             receita.setUsuarioAlteracao(receitaDTO.getUsuarioAlteracao());
-            receita.setDataCadastro(receitaDTO.getDataCadastro());
             receita.setProfessorReceita(receitaDTO.getProfessorReceita());
 
             // Atualizar usuário

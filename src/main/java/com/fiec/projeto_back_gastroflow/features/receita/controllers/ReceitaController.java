@@ -2,9 +2,11 @@ package com.fiec.projeto_back_gastroflow.features.receita.controllers;
 
 import com.fiec.projeto_back_gastroflow.features.receita.dto.ReceitaDTO;
 import com.fiec.projeto_back_gastroflow.features.receita.services.impl.ReceitaServiceImpl;
+import com.fiec.projeto_back_gastroflow.features.user.models.User;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,8 +21,11 @@ public class ReceitaController {
     // Criar uma receita
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> createReceita(@RequestBody ReceitaDTO receitaDTO) {
-        receitaService.createReceita(receitaDTO);
+
+    public ResponseEntity<String> createReceita( @AuthenticationPrincipal
+                                                     User userLogado, @RequestBody ReceitaDTO receitaDTO) {
+        java.util.UUID usuarioId = userLogado.getId();
+        receitaService.createReceita(receitaDTO, usuarioId);
         return ResponseEntity.ok("Receita cadastrada com sucesso!");
     }
 

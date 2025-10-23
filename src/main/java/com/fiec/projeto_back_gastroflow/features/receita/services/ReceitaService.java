@@ -3,10 +3,11 @@ package com.fiec.projeto_back_gastroflow.features.receita.services;
 import com.fiec.projeto_back_gastroflow.features.receita.dto.ReceitaDTO;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface ReceitaService {
 
-    void createReceita(ReceitaDTO receitaDTO);
+    void createReceita(ReceitaDTO receitaDTO, UUID usuarioID);
 
     ReceitaDTO getById(Long id);
 
@@ -15,4 +16,5 @@ public interface ReceitaService {
     boolean updateReceitaById(Long id, ReceitaDTO receitaDTO);
 
     void deleteReceitaById(Long id);
+
 }

@@ -13,7 +13,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReceitaDTO {
-    private Long id;
 
     private String nome;
 

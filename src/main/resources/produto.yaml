@@ -1,0 +1,148 @@
+openapi: 3.0.0
+info:
+  title: API de Produtos - GastroFlow
+  version: 1.0.0
+  description: Endpoints CRUD para gestão de produtos do projeto GastroFlow.
+servers:
+  - url: http://localhost:8080 # Verifique a porta do seu projeto Spring Boot
+
+paths:
+  /produto:
+    # GET /produto?id={id} - Buscar por ID
+    get:
+      summary: Buscar Produto por ID
+      operationId: getProdutoById
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: ID do produto a ser buscado.
+      responses:
+        '200':
+          description: Produto encontrado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProdutoDTO'
+        '404':
+          description: Produto não encontrado.
+
+    # POST /produto - Criar Novo Produto
+    post:
+      summary: Criar um Novo Produto
+      operationId: createProduto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProdutoDTO'
+      responses:
+        '201':
+          description: Produto criado com sucesso.
+        '400':
+          description: Dados inválidos fornecidos.
+
+    # PATCH /produto?id={id} - Atualizar Produto
+    patch:
+      summary: Atualizar um Produto por ID (Parcial)
+      operationId: updateProdutoById
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: ID do produto a ser atualizado.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProdutoDTO'
+      responses:
+        '200':
+          description: Produto atualizado com sucesso.
+        '404':
+          description: Produto não encontrado.
+
+    # DELETE /produto?id={id} - Deletar Produto
+    delete:
+      summary: Deletar Produto por ID
+      operationId: deleteProdutoById
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: ID do produto a ser deletado.
+      responses:
+        '200':
+          description: Produto deletado com sucesso.
+        '404':
+          description: Produto não encontrado.
+
+  /produto/nome:
+    # GET /produto/nome?nome={nome} - Buscar por Nome
+    get:
+      summary: Buscar Produtos por Nome
+      operationId: getAllByNome
+      parameters:
+        - name: nome
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Nome ou parte do nome do produto para pesquisa.
+      responses:
+        '200':
+          description: Lista de produtos encontrados.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProdutoDTO'
+
+  /produto/produtos:
+    # GET /produto/produtos - Buscar Todos
+    get:
+      summary: Buscar Todos os Produtos
+      operationId: findAll
+      responses:
+        '200':
+          description: Lista de todos os produtos.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProdutoDTO'
+
+components:
+  schemas:
+    ProdutoDTO:
+      type: object
+      properties:
+        nome:
+          type: string
+          description: Nome do produto.
+          example: "Arroz Integral"
+        categoria:
+          type: string
+          description: Categoria ou tipo de produto (ex: Ingrediente, Bebida).
+          example: "Ingrediente"
+        quantidadeEstoque:
+          type: integer
+          description: Quantidade atual em estoque.
+          example: 25
+        unidadeMedida:
+          type: string
+          description: Unidade de medida (ex: Kg, Litro, Unidade).
+          example: "Kg"
