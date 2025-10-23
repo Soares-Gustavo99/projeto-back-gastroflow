@@ -6,6 +6,7 @@ import com.fiec.projeto_back_gastroflow.features.supplier.services.SupplierServi
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -22,6 +23,7 @@ public class SupplierController {
     // Converte DTO para Model para salvar
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyRole('ADMIN','STANDARD')")
     public Supplier createSupplier(@Valid @RequestBody SupplierDto supplierDto) {
         Supplier supplier = new Supplier();
         supplier.setRazaoSocial(supplierDto.getRazaoSocial());
@@ -34,11 +36,13 @@ public class SupplierController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','STANDARD','GUEST')")
     public List<Supplier> getAllSuppliers() {
         return supplierService.findAll();
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','STANDARD','GUEST')")
     public Supplier getSupplierById(@PathVariable UUID id) {
         return supplierService.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Fornecedor não encontrado"));
@@ -46,6 +50,7 @@ public class SupplierController {
 
     // Converte DTO para Model para atualizar
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','STANDARD')")
     public Supplier updateSupplier(@PathVariable UUID id, @Valid @RequestBody SupplierDto supplierDto) {
         Supplier updatedSupplier = new Supplier();
         updatedSupplier.setRazaoSocial(supplierDto.getRazaoSocial());
@@ -59,6 +64,7 @@ public class SupplierController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAnyRole('ADMIN','STANDARD')")
     public void deleteSupplier(@PathVariable UUID id) {
         supplierService.deleteById(id);
     }

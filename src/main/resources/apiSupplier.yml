@@ -1,0 +1,214 @@
+openapi: 3.0.3
+info:
+  title: API de Gestão de Fornecedores (Supplier)
+  description: Documentação da API REST para gerenciamento de fornecedores (Supplier) do projeto GastroFlow.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/v1/api
+    description: Servidor Local (Exemplo, ajuste a porta e domínio conforme necessário)
+
+paths:
+  /suppliers:
+    get:
+      tags:
+        - Fornecedores
+      summary: Lista todos os fornecedores
+      description: Retorna todos os fornecedores cadastrados. **Acesso:** ADMIN, STANDARD, GUEST.
+      operationId: getAllSuppliers
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Lista de fornecedores retornada com sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Supplier'
+
+    post:
+      tags:
+        - Fornecedores
+      summary: Cria um novo fornecedor
+      description: Cadastra um novo fornecedor. **Acesso:** ADMIN.
+      operationId: createSupplier
+      security:
+        - BearerAuth: []
+      requestBody:
+        description: Dados do fornecedor a ser criado
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupplierDto'
+      responses:
+        '201':
+          description: Fornecedor criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Supplier'
+        '400':
+          description: Requisição inválida (Erro de validação ou Razão Social já existente)
+        '500':
+          description: Erro interno do servidor
+
+  /suppliers/{id}:
+    get:
+      tags:
+        - Fornecedores
+      summary: Busca um fornecedor por ID
+      description: Retorna os dados de um fornecedor específico. **Acesso:** ADMIN, STANDARD, GUEST.
+      operationId: getSupplierById
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID do fornecedor (UUID)
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Fornecedor encontrado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Supplier'
+        '404':
+          description: Fornecedor não encontrado
+
+    put:
+      tags:
+        - Fornecedores
+      summary: Atualiza um fornecedor existente por ID
+      description: Atualiza os dados de um fornecedor. **Acesso:** ADMIN.
+      operationId: updateSupplier
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID do fornecedor a ser atualizado (UUID)
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Novos dados do fornecedor
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupplierDto'
+      responses:
+        '200':
+          description: Fornecedor atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Supplier'
+        '400':
+          description: Requisição inválida (Erro de validação)
+        '404':
+          description: Fornecedor não encontrado
+
+    delete:
+      tags:
+        - Fornecedores
+      summary: Exclui um fornecedor por ID
+      description: Remove um fornecedor do sistema. **Acesso:** ADMIN.
+      operationId: deleteSupplier
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID do fornecedor a ser excluído (UUID)
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Fornecedor excluído com sucesso (No Content)
+        '404':
+          description: Fornecedor não encontrado
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Supplier:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID único do fornecedor. Gerado automaticamente.
+          example: 8c35b67e-613d-4c3d-9d7a-18e39265f242
+        razaoSocial:
+          type: string
+          description: Razão Social da empresa. Única e obrigatória (mínimo 3 caracteres).
+          example: Fornecedor Alfa LTDA
+        nomeFantasia:
+          type: string
+          description: Nome Fantasia da empresa (mínimo 3 caracteres).
+          example: Alfa Suprimentos
+        telefone:
+          type: string
+          description: Telefone de contato. Obrigatório (mínimo 8 dígitos).
+          example: 5511987654321
+        email:
+          type: string
+          format: email
+          description: Endereço de email válido.
+          example: contato@alfa.com.br
+        endereco:
+          type: string
+          description: Endereço completo. Obrigatório (mínimo 5 caracteres).
+          example: Rua Principal, 123 - Centro
+      required:
+        - razaoSocial
+        - telefone
+        - endereco
+
+    SupplierDto:
+      type: object
+      properties:
+        razaoSocial:
+          type: string
+          description: Razão Social da empresa. Única e obrigatória (mínimo 3 caracteres).
+          example: Fornecedor Beta S.A.
+          minLength: 3
+        nomeFantasia:
+          type: string
+          description: Nome Fantasia da empresa (mínimo 3 caracteres).
+          example: Beta Logística
+          minLength: 3
+        telefone:
+          type: string
+          description: Telefone de contato. Obrigatório (mínimo 8 dígitos).
+          example: 552133445566
+          minLength: 8
+        email:
+          type: string
+          format: email
+          description: Endereço de email válido.
+          example: vendas@beta.com
+        endereco:
+          type: string
+          description: Endereço completo. Obrigatório (mínimo 5 caracteres).
+          example: Av. Secundária, 456
+          minLength: 5
+      required:
+        - razaoSocial
+        - telefone
+        - endereco
