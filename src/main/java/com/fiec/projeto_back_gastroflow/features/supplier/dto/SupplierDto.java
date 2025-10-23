@@ -4,11 +4,13 @@ import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-public abstract class SupplierDto {
+@NoArgsConstructor
+public class SupplierDto {
 
     @NotBlank(message = "A Razão Social não pode estar vazia.")
     @Size(min = 3, message = "A Razão Social deve ter no mínimo 3 caracteres.")
