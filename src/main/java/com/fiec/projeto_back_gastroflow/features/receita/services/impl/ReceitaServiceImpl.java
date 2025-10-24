@@ -30,7 +30,6 @@ public class ReceitaServiceImpl implements ReceitaService {
         receita.setTempoPreparo(receitaDTO.getTempoPreparo());
         receita.setRendimento(receitaDTO.getRendimento());
         receita.setTipo(receitaDTO.getTipo());
-        receita.setUsuarioAlteracao(receitaDTO.getUsuarioAlteracao());
         receita.setProfessorReceita(receitaDTO.getProfessorReceita());
 
         // Relacionar usuário
@@ -98,28 +97,23 @@ public class ReceitaServiceImpl implements ReceitaService {
     }
 
     @Override
-    public boolean updateReceitaById(Long id, ReceitaDTO receitaDTO) {
+    public boolean updateReceitaById(Long id, ReceitaDTO receitaDTO, java.util.UUID usuarioId) {
         return receitaRepository.findById(id).map(receita -> {
             receita.setNome(receitaDTO.getNome());
             receita.setDescricao(receitaDTO.getDescricao());
             receita.setTempoPreparo(receitaDTO.getTempoPreparo());
             receita.setRendimento(receitaDTO.getRendimento());
             receita.setTipo(receitaDTO.getTipo());
-            receita.setUsuarioAlteracao(receitaDTO.getUsuarioAlteracao());
             receita.setProfessorReceita(receitaDTO.getProfessorReceita());
 
-            // Atualizar usuário
-            if (receitaDTO.getUserId() != null) {
-                User user = userRepository.findById(receitaDTO.getUserId())
-                        .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-                receita.setUser(user);
-            }
-
-            // Atualizar produtos
+            // Atualizar produtos (mantendo lógica existente)
             if (receitaDTO.getProdutoIds() != null) {
                 List<Produto> produtos = produtoRepository.findAllById(receitaDTO.getProdutoIds());
                 receita.setProdutos(produtos);
             }
+
+            // Atualiza o campo usuarioAlteracao automaticamente
+            receita.setUsuarioAlteracao(usuarioId.toString());
 
             receitaRepository.save(receita);
             return true;

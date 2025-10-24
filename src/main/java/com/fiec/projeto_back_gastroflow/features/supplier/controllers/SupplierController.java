@@ -63,7 +63,7 @@ public class SupplierController {
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyRole('ADMIN','STANDARD')")
     public void deleteSupplier(@PathVariable UUID id) {
         supplierService.deleteById(id);

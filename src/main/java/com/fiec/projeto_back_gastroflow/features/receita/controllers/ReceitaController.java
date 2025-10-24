@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/receita")
+@RequestMapping("/v1/api/receitas")
 @AllArgsConstructor
 public class ReceitaController {
 
@@ -20,10 +20,8 @@ public class ReceitaController {
 
     // Criar uma receita
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-
-    public ResponseEntity<String> createReceita( @AuthenticationPrincipal
-                                                     User userLogado, @RequestBody ReceitaDTO receitaDTO) {
+    @PreAuthorize("hasAnyRole('ADMIN', 'STANDARD')")
+    public ResponseEntity<String> createReceita( @AuthenticationPrincipal User userLogado, @RequestBody ReceitaDTO receitaDTO) {
         java.util.UUID usuarioId = userLogado.getId();
         receitaService.createReceita(receitaDTO, usuarioId);
         return ResponseEntity.ok("Receita cadastrada com sucesso!");
@@ -31,7 +29,7 @@ public class ReceitaController {
 
     // Buscar receita por ID
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','STANDARD')")
+    @PreAuthorize("hasAnyRole('ADMIN','STANDARD', 'GUEST')")
     public ResponseEntity<ReceitaDTO> getById(@PathVariable Long id) {
         ReceitaDTO receita = receitaService.getById(id);
         if (receita == null) {
@@ -42,7 +40,7 @@ public class ReceitaController {
 
     // Listar todas as receitas
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','STANDARD')")
+    @PreAuthorize("hasAnyRole('ADMIN','STANDARD', 'GUEST')")
     public ResponseEntity<List<ReceitaDTO>> findAll() {
         return ResponseEntity.ok(receitaService.findAll());
     }
@@ -50,8 +48,15 @@ public class ReceitaController {
     // Atualizar receita
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> updateReceitaById(@PathVariable Long id, @RequestBody ReceitaDTO receitaDTO) {
-        boolean updated = receitaService.updateReceitaById(id, receitaDTO);
+    public ResponseEntity<String> updateReceitaById(
+            @AuthenticationPrincipal User userLogado,
+            @PathVariable Long id,
+            @RequestBody ReceitaDTO receitaDTO) {
+
+        java.util.UUID usuarioId = userLogado.getId();
+
+        boolean updated = receitaService.updateReceitaById(id, receitaDTO, usuarioId);
+
         if (updated) {
             return ResponseEntity.ok("Receita atualizada com sucesso!");
         } else {

@@ -2,6 +2,7 @@ package com.fiec.projeto_back_gastroflow.features.products.controllers;
 
 
 import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoDTO;
+import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoSearch;
 import com.fiec.projeto_back_gastroflow.features.products.services.impl.ProdutoServiceImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,7 +15,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping(value = "/produtos")
+@RequestMapping(value = "/v1/api/produtos")
 public class ProdutoController {
 
     private final ProdutoServiceImpl produtoService;
@@ -60,6 +61,11 @@ public class ProdutoController {
     @PreAuthorize("hasAnyRole('ADMIN','STANDARD')")
     public void deleteProdutoById(@RequestParam Long id){
         produtoService.deleteProdutoById(id);
+    }
+
+    @GetMapping("/filters/all")
+    public List<ProdutoDTO> getProductById(ProdutoSearch productSearch){
+        return produtoService.findAllWithQueries(productSearch);
     }
 }
 
