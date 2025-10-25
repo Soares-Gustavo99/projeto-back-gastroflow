@@ -15,7 +15,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping(value = "/v1/api/produtos")
+@RequestMapping("/v1/api/produtos")
 public class ProdutoController {
 
     private final ProdutoServiceImpl produtoService;

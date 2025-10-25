@@ -1,15 +1,16 @@
 package com.fiec.projeto_back_gastroflow.features.aula.controllers;
 
-
 import com.fiec.projeto_back_gastroflow.features.aula.dto.AulaDTO;
 import com.fiec.projeto_back_gastroflow.features.aula.services.impl.AulaServiceImpl;
-import com.fiec.projeto_back_gastroflow.features.receita.dto.ReceitaDTO;
+import com.fiec.projeto_back_gastroflow.features.user.models.User;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/v1/api/aulas")
@@ -18,16 +19,18 @@ public class AulaController {
 
     private final AulaServiceImpl aulaService;
 
-    //CRIAR AULA
+    // Criar uma aula
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> createAula(@RequestBody AulaDTO aulaDTO) {
-        aulaService.createAula(aulaDTO);
+    @PreAuthorize("hasAnyRole('ADMIN', 'STANDARD')")
+    public ResponseEntity<String> createAula(@AuthenticationPrincipal User userLogado, @RequestBody AulaDTO aulaDTO) {
+        UUID usuarioId = userLogado.getId();
+        aulaService.createAula(aulaDTO, usuarioId);
         return ResponseEntity.ok("Aula cadastrada com sucesso!");
     }
-    //LISTAR AULA POR ID
+
+    // Buscar aula por ID
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','STANDARD')")
+    @PreAuthorize("hasAnyRole('ADMIN','STANDARD', 'GUEST')")
     public ResponseEntity<AulaDTO> getById(@PathVariable Long id) {
         AulaDTO aula = aulaService.getById(id);
         if (aula == null) {
@@ -36,18 +39,25 @@ public class AulaController {
         return ResponseEntity.ok(aula);
     }
 
-    //LISTAR TODAS AS AULAS
+    // Listar todas as aulas
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','STANDARD')")
+    @PreAuthorize("hasAnyRole('ADMIN','STANDARD', 'GUEST')")
     public ResponseEntity<List<AulaDTO>> findAll() {
         return ResponseEntity.ok(aulaService.findAll());
     }
 
-    //ATUALIZAR AULA
+    // Atualizar aula
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> updateAulaById(@PathVariable Long id, @RequestBody AulaDTO aulaDTO) {
-        boolean updated = aulaService.updateAulaById(id, aulaDTO);
+    public ResponseEntity<String> updateAulaById(
+            @AuthenticationPrincipal User userLogado,
+            @PathVariable Long id,
+            @RequestBody AulaDTO aulaDTO) {
+
+        UUID usuarioId = userLogado.getId();
+
+        boolean updated = aulaService.updateAulaById(id, aulaDTO, usuarioId);
+
         if (updated) {
             return ResponseEntity.ok("Aula atualizada com sucesso!");
         } else {
@@ -55,12 +65,11 @@ public class AulaController {
         }
     }
 
-    //DELETAR AULA
+    // Deletar aula
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteAulaById(@PathVariable Long id) {
         aulaService.deleteAulaById(id);
         return ResponseEntity.ok("Aula deletada com sucesso!");
     }
-
 }
