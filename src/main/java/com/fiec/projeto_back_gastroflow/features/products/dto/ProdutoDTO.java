@@ -16,6 +16,8 @@ import java.util.Date;
 @AllArgsConstructor
 public class ProdutoDTO {
 
+    private Long id;
+
     private String nome;
 
     private Categoria categoria;
@@ -25,6 +27,5 @@ public class ProdutoDTO {
     private UnidadeMedida unidadeMedida;
 
     private Date validade;
-
 
 }

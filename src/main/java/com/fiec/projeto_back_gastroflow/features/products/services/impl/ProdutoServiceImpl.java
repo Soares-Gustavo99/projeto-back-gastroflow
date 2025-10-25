@@ -38,6 +38,7 @@ public class ProdutoServiceImpl implements ProdutoService {
     public ProdutoDTO getById(Long id) {
         return produtoRepository.findById(id).map(produto ->
                 new ProdutoDTO(
+                        produto.getId(),
                         produto.getNome(),
                         produto.getCategoria(),
                         produto.getQuantidadeEstoque(),
@@ -50,6 +51,7 @@ public class ProdutoServiceImpl implements ProdutoService {
     public List<ProdutoDTO> getAllByNome(String nome) {
         return produtoRepository.findAllByNome(nome).stream()
                 .map(produto -> new ProdutoDTO(
+                        produto.getId(),
                         produto.getNome(),
                         produto.getCategoria(),
                         produto.getQuantidadeEstoque(),
@@ -63,6 +65,7 @@ public class ProdutoServiceImpl implements ProdutoService {
     public List<ProdutoDTO> findAll() {
         return produtoRepository.findAll().stream()
                 .map(produto -> new ProdutoDTO(
+                        produto.getId(),
                         produto.getNome(),
                         produto.getCategoria(),
                         produto.getQuantidadeEstoque(),
@@ -75,11 +78,11 @@ public class ProdutoServiceImpl implements ProdutoService {
     // Atualizar Produto por ID
     public boolean updateProdutoById(Long id, ProdutoDTO produtoDTO) {
         return produtoRepository.findById(id).map(produto -> {
-            produto.setNome(produtoDTO.getNome());
-            produto.setCategoria(produtoDTO.getCategoria());
-            produto.setQuantidadeEstoque(produtoDTO.getQuantidadeEstoque());
-            produto.setUnidadeMedida(produtoDTO.getUnidadeMedida());
-            produto.setValidade(produtoDTO.getValidade());
+            if (produtoDTO.getNome() != null) produto.setNome(produtoDTO.getNome());
+            if (produtoDTO.getCategoria() != null) produto.setCategoria(produtoDTO.getCategoria());
+            if (produtoDTO.getQuantidadeEstoque() != null) produto.setQuantidadeEstoque(produtoDTO.getQuantidadeEstoque());
+            if (produtoDTO.getUnidadeMedida() != null) produto.setUnidadeMedida(produtoDTO.getUnidadeMedida());
+            if (produtoDTO.getValidade() != null) produto.setValidade(produtoDTO.getValidade());
 
             produtoRepository.save(produto);
             return true;
