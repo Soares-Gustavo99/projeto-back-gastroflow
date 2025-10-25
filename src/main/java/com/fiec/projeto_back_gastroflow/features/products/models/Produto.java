@@ -21,19 +21,19 @@ public class Produto {
     @GeneratedValue
     private Long Id;
 
-    @Column(nullable = false)
+    @Column
     private String nome;
 
-    @Column(nullable = false)
+    @Column
     private Categoria categoria;
 
     @Column
     private Integer quantidadeEstoque;
 
-    @Column(nullable = false)
+    @Column
     private UnidadeMedida unidadeMedida;
 
-    @Column(nullable = false)
+    @Column
     private Date validade;
 
     @ManyToMany(mappedBy = "produtos")

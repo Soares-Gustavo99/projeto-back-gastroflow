@@ -26,7 +26,7 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
-    public Optional<Supplier> findById(UUID id) {
+    public Optional<Supplier> findById(Long id) {
         return supplierRepository.findById(id);
     }
 
@@ -36,7 +36,7 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
-    public Supplier update(UUID id, Supplier updatedSupplier) {
+    public Supplier update(Long id, Supplier updatedSupplier) {
         return supplierRepository.findById(id).map(supplier -> {
             // Atualiza os campos
             supplier.setRazaoSocial(updatedSupplier.getRazaoSocial());
@@ -50,7 +50,7 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
-    public void deleteById(UUID id) {
+    public void deleteById(Long id) {
         supplierRepository.deleteById(id);
     }
 }

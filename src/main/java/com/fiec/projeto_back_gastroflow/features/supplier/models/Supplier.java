@@ -15,11 +15,11 @@ import java.util.UUID;
 public class Supplier {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue
     @Column(updatable = false, nullable = false)
-    private UUID id;
+    private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true)
     private String razaoSocial;
 
     @Column
