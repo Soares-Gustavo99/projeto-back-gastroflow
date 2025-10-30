@@ -1,0 +1,241 @@
+openapi: 3.0.0
+info:
+  title: GastroFlow API - Módulo Entradas
+  description: API para gerenciamento de Entradas/Recebimento de Estoque.
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000/v1/api
+    description: Servidor de Desenvolvimento Local
+
+security:
+  - bearerAuth: [] # Aplica a segurança JWT globalmente
+
+tags:
+  - name: Entradas
+    description: Operações de CRUD para Entradas de Estoque
+
+paths:
+  /entradas:
+    # ----------------------------------------------------
+    # POST /entradas - Criar Entrada
+    # ----------------------------------------------------
+    post:
+      tags:
+        - Entradas
+      summary: Cria uma nova entrada de produto no estoque.
+      operationId: createEntrada
+      security:
+        - bearerAuth: [] # Requer JWT
+      requestBody:
+        description: Dados da Entrada a ser criada.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntradaDTO'
+            example:
+              dataEntrada: "2024-10-25T10:00:00Z"
+              quantidade: 10
+              observacao: "Lote A"
+              produtoId: 1 # ID do Produto (Long)
+              fornecedorId: "3fa85f64-5717-4562-b3fc-2c963f66afa6" # ID do Fornecedor (UUID)
+              userId: "4f4e7e6a-2d4e-4e6a-9a9e-2f2e5e4a7a8b" # ID do Usuário (UUID)
+      responses:
+        '201':
+          description: Entrada criada com sucesso.
+        '400':
+          description: Requisição inválida (Produto ou Fornecedor não encontrados).
+        '401':
+          description: Não autorizado (Token JWT ausente ou inválido).
+        '403':
+          description: Acesso negado (Usuário sem papel 'ADMIN' ou 'STANDARD').
+
+    # ----------------------------------------------------
+    # PATCH /entradas - Atualizar Entrada por ID
+    # ----------------------------------------------------
+    patch:
+      tags:
+        - Entradas
+      summary: Atualiza uma entrada de produto existente.
+      operationId: updateEntradaById
+      security:
+        - bearerAuth: [] # Requer JWT
+      parameters:
+        - name: id
+          in: query
+          description: ID da Entrada a ser atualizada (Long).
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Dados da Entrada a serem atualizados.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntradaDTO'
+            example:
+              dataEntrada: "2024-10-25T12:00:00Z"
+              quantidade: 12
+              observacao: "Lote B"
+              produtoId: 1
+              fornecedorId: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+              userId: "4f4e7e6a-2d4e-4e6a-9a9e-2f2e5e4a7a8b"
+      responses:
+        '200':
+          description: Entrada atualizada com sucesso.
+        '404':
+          description: Entrada ou Produto/Fornecedor não encontrado.
+        '403':
+          description: Acesso negado (Usuário sem papel 'ADMIN' ou 'STANDARD').
+
+    # ----------------------------------------------------
+    # GET /entradas - Buscar Entrada por ID (Query Param)
+    # ----------------------------------------------------
+    get:
+      tags:
+        - Entradas
+      summary: Busca uma entrada por ID (Long).
+      operationId: getEntradaById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: query
+          description: ID da Entrada (Long).
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Entrada encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntradaDTO'
+        '404':
+          description: Entrada não encontrada.
+
+    # ----------------------------------------------------
+    # DELETE /entradas - Deletar Entrada por ID
+    # ----------------------------------------------------
+    delete:
+      tags:
+        - Entradas
+      summary: Deleta uma entrada por ID (Long).
+      operationId: deleteEntradaById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: query
+          description: ID da Entrada a ser deletada (Long).
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Entrada deletada com sucesso.
+        '404':
+          description: Entrada não encontrada.
+        '403':
+          description: Acesso negado (Usuário sem papel 'ADMIN').
+
+  /entradas/todas:
+    # ----------------------------------------------------
+    # GET /entradas/todas - Listar todas as Entradas
+    # ----------------------------------------------------
+    get:
+      tags:
+        - Entradas
+      summary: Lista todas as entradas de estoque.
+      operationId: findAllEntradas
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de entradas retornada com sucesso.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EntradaDTO'
+
+  /entradas/produto:
+    # ----------------------------------------------------
+    # GET /entradas/produto - Buscar por ID do Produto
+    # ----------------------------------------------------
+    get:
+      tags:
+        - Entradas
+      summary: Busca entradas pelo ID do produto.
+      operationId: getAllByProdutoId
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: produtoId
+          in: query
+          description: ID do Produto (Long) para filtrar as entradas.
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Lista de entradas para o produto encontrado.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EntradaDTO'
+
+components:
+  schemas:
+    EntradaDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: ID da Entrada (apenas para retorno/referência, não enviar na criação).
+        dataEntrada:
+          type: string
+          format: date-time
+          description: Data e hora da entrada do produto.
+        quantidade:
+          type: integer
+          description: Quantidade de produto que entrou no estoque.
+        observacao:
+          type: string
+          nullable: true
+          description: Observações sobre a entrada.
+        produtoId:
+          type: integer
+          format: int64
+          description: ID do Produto relacionado.
+        fornecedorId:
+          type: string
+          format: uuid
+          nullable: true
+          description: ID do Fornecedor relacionado (pode ser nulo).
+        userId:
+          type: string
+          format: uuid
+          description: ID do Usuário que registrou a entrada.
+      required:
+        - dataEntrada
+        - quantidade
+        - produtoId
+        - userId
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Coloque o Token JWT (somente o token, sem 'Bearer ')
