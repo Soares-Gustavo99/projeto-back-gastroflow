@@ -31,6 +31,7 @@ public class Receita {
 
     @UpdateTimestamp
     private Date dataAlteracao;
+
     private String usuarioAlteracao;
 
     @CreationTimestamp

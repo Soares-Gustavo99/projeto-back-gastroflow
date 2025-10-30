@@ -43,7 +43,7 @@ public class SupplierController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','STANDARD','GUEST')")
-    public Supplier getSupplierById(@PathVariable UUID id) {
+    public Supplier getSupplierById(@PathVariable Long id) {
         return supplierService.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Fornecedor não encontrado"));
     }
@@ -51,7 +51,7 @@ public class SupplierController {
     // Converte DTO para Model para atualizar
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','STANDARD')")
-    public Supplier updateSupplier(@PathVariable UUID id, @Valid @RequestBody SupplierDto supplierDto) {
+    public Supplier updateSupplier(@PathVariable Long id, @Valid @RequestBody SupplierDto supplierDto) {
         Supplier updatedSupplier = new Supplier();
         updatedSupplier.setRazaoSocial(supplierDto.getRazaoSocial());
         updatedSupplier.setNomeFantasia(supplierDto.getNomeFantasia());
@@ -63,9 +63,9 @@ public class SupplierController {
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyRole('ADMIN','STANDARD')")
-    public void deleteSupplier(@PathVariable UUID id) {
+    public void deleteSupplier(@PathVariable Long id) {
         supplierService.deleteById(id);
     }
 }

@@ -2,11 +2,13 @@ package com.fiec.projeto_back_gastroflow.features.products.services.impl;
 
 
 import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoDTO;
+import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoSearch;
 import com.fiec.projeto_back_gastroflow.features.products.models.Produto;
 import com.fiec.projeto_back_gastroflow.features.products.repositories.ProdutoRepository;
 import com.fiec.projeto_back_gastroflow.features.products.services.ProdutoService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -82,6 +84,26 @@ public class ProdutoServiceImpl implements ProdutoService {
             produtoRepository.save(produto);
             return true;
         }).orElse(false);
+    }
+
+    @Override
+    public List<ProdutoDTO> findAllWithQueries(ProdutoSearch produtoSearch) {
+        List<Produto> produtos = produtoRepository.findProdutos(produtoSearch);
+
+        if (CollectionUtils.isEmpty(produtos)) {
+            return List.of();
+        } else {
+            return produtos.stream()
+                    .map(produto -> ProdutoDTO.builder()
+                            .nome(produto.getNome())
+                            .categoria(produto.getCategoria())
+                            .quantidadeEstoque(produto.getQuantidadeEstoque())
+                            .unidadeMedida(produto.getUnidadeMedida())
+                            .validade(produto.getValidade())
+                            .build()
+                    )
+                    .toList();
+        }
     }
 
     // Deletar Produto por ID

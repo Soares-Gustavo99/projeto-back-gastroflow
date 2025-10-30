@@ -12,6 +12,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class SupplierDto {
 
+    private Long id;
+
     @NotBlank(message = "A Razão Social não pode estar vazia.")
     @Size(min = 3, message = "A Razão Social deve ter no mínimo 3 caracteres.")
     private String razaoSocial;

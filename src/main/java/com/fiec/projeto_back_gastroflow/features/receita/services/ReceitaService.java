@@ -13,7 +13,7 @@ public interface ReceitaService {
 
     List<ReceitaDTO> findAll();
 
-    boolean updateReceitaById(Long id, ReceitaDTO receitaDTO);
+    boolean updateReceitaById(Long id, ReceitaDTO receitaDTO, java.util.UUID usuarioId);
 
     void deleteReceitaById(Long id);
 

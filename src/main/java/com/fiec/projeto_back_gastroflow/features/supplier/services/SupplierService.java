@@ -8,8 +8,8 @@ import java.util.UUID;
 
 public interface SupplierService {
     Supplier save(Supplier supplier);
-    Optional<Supplier> findById(UUID id);
+    Optional<Supplier> findById(Long id);
     List<Supplier> findAll();
-    Supplier update(UUID id, Supplier updatedSupplier);
-    void deleteById(UUID id);
+    Supplier update(Long id, Supplier updatedSupplier);
+    void deleteById(Long id);
 }

@@ -21,13 +21,23 @@ public class Aula {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nome;
     private String descricao;
+
     private Date data;
+
     private String instrutor;
+
     private String materia;
 
-    //Colocar chave estrangeira das turmas e do usuário
+    private Integer ano;
+
+    private Integer semestre;
+
+    private Integer modulo;
+
+    private String periodo;
+
+
 
     @ManyToMany
     @JoinTable(
@@ -38,13 +48,9 @@ public class Aula {
     //IMPORTAR PRODUTO AQUI
     private List<Receita> receitas = new ArrayList<>();
 
-    @ManyToMany
-    @JoinTable(
-            name = "aula_user",
-            joinColumns = @JoinColumn(name = "aula_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
+    @ManyToOne
+    @JoinColumn(name = "fk_usuario_id")
+    private User user;
     //IMPORTAR PRODUTO AQUI
-    private List<User> users = new ArrayList<>();
 
 }
