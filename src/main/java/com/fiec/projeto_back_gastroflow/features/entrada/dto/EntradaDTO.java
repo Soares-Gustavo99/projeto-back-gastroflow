@@ -18,9 +18,11 @@ public class EntradaDTO {
     private Integer quantidade;
     private String observacao;
     private Long produtoId; // ID do Produto é Long
-    private UUID fornecedorId; // ID do Fornecedor é UUID
+    private Long fornecedorId; // ID do Fornecedor é UUID
     private UUID userId; // ID do Usuário é UUID
 
     // O ID da própria entrada pode ser incluído se o DTO for usado para retorno
     private Long id;
+
+
 }

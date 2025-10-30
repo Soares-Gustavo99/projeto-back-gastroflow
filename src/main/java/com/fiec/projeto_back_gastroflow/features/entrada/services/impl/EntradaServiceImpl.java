@@ -51,7 +51,7 @@ public class EntradaServiceImpl implements EntradaService {
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado com ID: " + id));
     }
 
-    private Supplier findSupplierById(UUID id) {
+    private Supplier findSupplierById(Long id) {
         // Simulação de busca
         return supplierRepository.findById(id).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Fornecedor não encontrado com ID: " + id));
