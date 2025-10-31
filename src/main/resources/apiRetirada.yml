@@ -1,11 +1,11 @@
 openapi: 3.0.0
 info:
   title: GastroFlow API - Módulo Retiradas
-  description: API para gerenciamento de Retiradas (saídas) de Estoque.
+  description: API para gerenciamento de Retiradas (saídas) de Estoque, com IDs Long.
   version: 1.0.0
 servers:
   - url: http://localhost:5000/v1/api
-    description: URL base, conforme RequestMapping no RetiradaController
+    description: Servidor de Desenvolvimento Local
 
 security:
   - bearerAuth: [] # Aplica a segurança JWT globalmente
@@ -25,28 +25,69 @@ paths:
       summary: Registra uma nova saída (retirada) de produto do estoque.
       operationId: createRetirada
       security:
-        - bearerAuth: [] # Acesso: ADMIN, STANDARD
+        - bearerAuth: [] # Requer JWT
       requestBody:
         description: Dados da Retirada a ser registrada.
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RetiradaRequestDTO'
+              $ref: '#/components/schemas/RetiradaDTO'
             example:
-              dataRetirada: "2025-10-30T10:30:00Z"
+              dataRetirada: "2025-10-25T14:30:00Z"
               quantidade: 5
-              observacao: "Uso na produção de X"
-              produtoId: 101 # Long
-              userId: "4f4e7e6a-2d4e-4e6a-9a9e-2f2e5e4a7a8b" # UUID
+              observacao: "Uso na cozinha principal"
+              produtoId: 101 # ID do Produto (Long)
+              userId: "4f4e7e6a-2d4e-4e6a-9a9e-2f2e5e4a7a8b" # ID do Usuário (UUID)
       responses:
         '201':
           description: Retirada registrada com sucesso.
+        '400':
+          description: Requisição inválida (Produto não encontrado ou estoque insuficiente).
         '403':
-          description: Acesso negado.
+          description: Acesso negado (Usuário sem papel 'ADMIN' ou 'STANDARD').
 
     # ----------------------------------------------------
-    # GET /retiradas?id={id} - Buscar Retirada por ID (Long)
+    # PATCH /retiradas?id={id} - Atualizar Retirada por ID
+    # ----------------------------------------------------
+    patch:
+      tags:
+        - Retiradas
+      summary: Atualiza uma retirada de produto existente pelo ID.
+      operationId: updateRetiradaById
+      security:
+        - bearerAuth: [] # Requer JWT
+      parameters:
+        - name: id
+          in: query
+          description: ID da Retirada a ser atualizada (Long).
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Dados da Retirada a serem atualizados.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RetiradaDTO'
+            example:
+              dataRetirada: "2025-10-25T15:00:00Z"
+              quantidade: 6
+              observacao: "Correção: Uso na cozinha principal"
+              produtoId: 101
+              userId: "4f4e7e6a-2d4e-4e6a-9a9e-2f2e5e4a7a8b"
+      responses:
+        '200':
+          description: Retirada atualizada com sucesso.
+        '404':
+          description: Retirada ou Produto/Usuário não encontrado.
+        '403':
+          description: Acesso negado (Usuário sem papel 'ADMIN' ou 'STANDARD').
+
+    # ----------------------------------------------------
+    # GET /retiradas?id={id} - Buscar Retirada por ID (Query Param)
     # ----------------------------------------------------
     get:
       tags:
@@ -54,7 +95,7 @@ paths:
       summary: Busca uma retirada por ID (Long).
       operationId: getRetiradaById
       security:
-        - bearerAuth: [] # Acesso: ADMIN, STANDARD, GUEST
+        - bearerAuth: []
       parameters:
         - name: id
           in: query
@@ -69,43 +110,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RetiradaResponseDTO'
+                $ref: '#/components/schemas/RetiradaDTO'
         '404':
           description: Retirada não encontrada.
 
     # ----------------------------------------------------
-    # PATCH /retiradas?id={id} - Atualizar Retirada por ID (Long)
-    # ----------------------------------------------------
-    patch:
-      tags:
-        - Retiradas
-      summary: Atualiza uma retirada de produto existente pelo ID.
-      operationId: updateRetiradaById
-      security:
-        - bearerAuth: [] # Acesso: ADMIN, STANDARD
-      parameters:
-        - name: id
-          in: query
-          description: ID da Retirada a ser atualizada (Long).
-          required: true
-          schema:
-            type: integer
-            format: int64
-      requestBody:
-        description: Dados da Retirada a serem atualizados (todos os campos).
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RetiradaRequestDTO'
-      responses:
-        '200':
-          description: Retirada atualizada com sucesso.
-        '403':
-          description: Acesso negado.
-
-    # ----------------------------------------------------
-    # DELETE /retiradas?id={id} - Deletar Retirada por ID (Long)
+    # DELETE /retiradas?id={id} - Deletar Retirada por ID
     # ----------------------------------------------------
     delete:
       tags:
@@ -113,7 +123,7 @@ paths:
       summary: Deleta uma retirada por ID (Long).
       operationId: deleteRetiradaById
       security:
-        - bearerAuth: [] # Acesso: ADMIN
+        - bearerAuth: []
       parameters:
         - name: id
           in: query
@@ -124,9 +134,11 @@ paths:
             format: int64
       responses:
         '204':
-          description: Retirada deletada com sucesso (No Content).
+          description: Retirada deletada com sucesso.
+        '404':
+          description: Retirada não encontrada.
         '403':
-          description: Acesso negado (Somente ADMIN).
+          description: Acesso negado (Usuário sem papel 'ADMIN').
 
   /retiradas/todas:
     # ----------------------------------------------------
@@ -138,7 +150,7 @@ paths:
       summary: Lista todas as retiradas de estoque.
       operationId: findAllRetiradas
       security:
-        - bearerAuth: [] # Acesso: ADMIN, STANDARD, GUEST
+        - bearerAuth: []
       responses:
         '200':
           description: Lista de retiradas retornada com sucesso.
@@ -147,7 +159,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/RetiradaResponseDTO'
+                  $ref: '#/components/schemas/RetiradaDTO'
 
   /retiradas/produto:
     # ----------------------------------------------------
@@ -159,7 +171,7 @@ paths:
       summary: Busca retiradas pelo ID do produto.
       operationId: getAllByProdutoId
       security:
-        - bearerAuth: [] # Acesso: ADMIN, STANDARD, GUEST
+        - bearerAuth: []
       parameters:
         - name: produtoId
           in: query
@@ -170,20 +182,23 @@ paths:
             format: int64
       responses:
         '200':
-          description: Lista de retiradas para o produto encontrado.
+          description: Lista de entradas para o produto encontrado.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/RetiradaResponseDTO'
+                  $ref: '#/components/schemas/RetiradaDTO'
 
 components:
   schemas:
-    # DTO usado no Request (POST/PATCH) - Sem o ID da Retirada
-    RetiradaRequestDTO:
+    RetiradaDTO:
       type: object
       properties:
+        id:
+          type: integer
+          format: int64
+          description: ID da Retirada (apenas para retorno/referência).
         dataRetirada:
           type: string
           format: date-time
@@ -208,17 +223,6 @@ components:
         - quantidade
         - produtoId
         - userId
-
-    # DTO usado no Response (GET) - Inclui o ID da Retirada
-    RetiradaResponseDTO:
-      allOf:
-        - $ref: '#/components/schemas/RetiradaRequestDTO'
-        - type: object
-          properties:
-            id:
-              type: integer
-              format: int64
-              description: ID da Retirada.
 
   securitySchemes:
     bearerAuth:
