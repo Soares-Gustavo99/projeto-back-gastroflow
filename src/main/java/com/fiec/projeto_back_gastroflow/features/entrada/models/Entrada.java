@@ -9,7 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
-import java.util.UUID;
 
 @Entity
 @Data
@@ -21,7 +20,7 @@ public class Entrada {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false, nullable = false)
-    private Long id; // ID como UUID, seguindo o padrão de User e Supplier
+    private Long id;
 
     @Column(nullable = false)
     private Date dataEntrada;
@@ -37,9 +36,9 @@ public class Entrada {
     @JoinColumn(name = "produto_id", nullable = false)
     private Produto produto;
 
-    // Relação ManyToOne com Fornecedor (Supplier tem id UUID)
+    // Relação ManyToOne com Fornecedor
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fornecedor_id", nullable = true) // Assumindo que o fornecedor pode ser opcional
+    @JoinColumn(name = "fornecedor_id", nullable = true)
     private Supplier fornecedor;
 
     // Relação ManyToOne com Usuário (User tem id UUID)
@@ -48,7 +47,7 @@ public class Entrada {
     private User user;
 
     // Construtor sem o ID (para uso ao criar uma nova entrada)
-    public Entrada(Date dataEntrada, Integer quantidade, Produto produto, Supplier fornecedor, User user) {
+    public Entrada(Date dataEntrada, Integer quantidade, String observacao, Produto produto, Supplier fornecedor, User user) {
         this.dataEntrada = dataEntrada;
         this.quantidade = quantidade;
         this.observacao = observacao;
@@ -57,6 +56,4 @@ public class Entrada {
         this.user = user;
     }
 
-    public Entrada(Date dataEntrada, Integer quantidade, String observacao, Produto produto, Supplier supplier, User user) {
-    }
 }
