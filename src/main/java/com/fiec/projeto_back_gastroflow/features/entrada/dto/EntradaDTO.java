@@ -12,17 +12,20 @@ import java.util.UUID;
 @AllArgsConstructor
 public class EntradaDTO {
 
-    // O DTO deve conter os campos para recebimento de dados
-    // E os IDs para as chaves estrangeiras
+    // ID da própria entrada (para retorno/update)
+    private Long id;
+
+    // Campos da Entrada
     private Date dataEntrada;
     private Integer quantidade;
     private String observacao;
+
+    // Campos de Auditoria (baseado em ReceitaDTO.java)
+    private Date dataCadastro;
+    private Date dataAlteracao;
+
+    // Chaves Estrangeiras (somente os IDs para criação/update)
     private Long produtoId; // ID do Produto é Long
-    private Long fornecedorId; // ID do Fornecedor é UUID
+    private Long fornecedorId; // Corrigido para UUID
     private UUID userId; // ID do Usuário é UUID
-
-    // O ID da própria entrada pode ser incluído se o DTO for usado para retorno
-    private Long id;
-
-
 }

@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
 import java.util.UUID;
@@ -21,7 +23,7 @@ public class Entrada {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false, nullable = false)
-    private Long id; // ID como UUID, seguindo o padrão de User e Supplier
+    private Long id;
 
     @Column(nullable = false)
     private Date dataEntrada;
@@ -32,31 +34,37 @@ public class Entrada {
     @Column
     private String observacao;
 
-    // Relação ManyToOne com Produto (Produto tem Id Long)
+    // Campos de Auditoria (baseados em Receita.java)
+    @CreationTimestamp
+    @Column(updatable = false) // Data de criação não deve ser atualizável
+    private Date dataCadastro;
+
+    @UpdateTimestamp
+    private Date dataAlteracao;
+
+
+    // Relação ManyToOne com Produto (Id Long)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "produto_id", nullable = false)
     private Produto produto;
 
-    // Relação ManyToOne com Fornecedor (Supplier tem id UUID)
+    // Relação ManyToOne com Fornecedor (Id UUID)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fornecedor_id", nullable = true) // Assumindo que o fornecedor pode ser opcional
+    @JoinColumn(name = "fornecedor_id", nullable = true)
     private Supplier fornecedor;
 
-    // Relação ManyToOne com Usuário (User tem id UUID)
+    // Relação ManyToOne com Usuário (Id UUID)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // Construtor sem o ID (para uso ao criar uma nova entrada)
-    public Entrada(Date dataEntrada, Integer quantidade, Produto produto, Supplier fornecedor, User user) {
+    // Construtor parcial (sem ID e campos automáticos de auditoria)
+    public Entrada(Date dataEntrada, Integer quantidade, String observacao, Produto produto, Supplier fornecedor, User user) {
         this.dataEntrada = dataEntrada;
         this.quantidade = quantidade;
         this.observacao = observacao;
         this.produto = produto;
         this.fornecedor = fornecedor;
         this.user = user;
-    }
-
-    public Entrada(Date dataEntrada, Integer quantidade, String observacao, Produto produto, Supplier supplier, User user) {
     }
 }
