@@ -16,6 +16,8 @@ import java.util.Date;
 @AllArgsConstructor
 public class ProdutoDTO {
 
+    private Long id;
+
     private String nome;
 
     private Categoria categoria;

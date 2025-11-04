@@ -36,6 +36,7 @@ public class Receita {
 
     @CreationTimestamp
     private Date dataCadastro;
+
     private Integer professorReceita;
 
     @ManyToOne

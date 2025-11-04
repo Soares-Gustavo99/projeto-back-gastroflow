@@ -21,6 +21,7 @@ public class Retirada {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // ID como Long, conforme solicitado
 
+
     @Column(nullable = false)
     private Date dataRetirada;
 
