@@ -1,69 +1,92 @@
 package com.fiec.projeto_back_gastroflow.features.entrada.controllers;
 
 import com.fiec.projeto_back_gastroflow.features.entrada.dto.EntradaDTO;
-import com.fiec.projeto_back_gastroflow.features.entrada.services.impl.EntradaServiceImpl;
+import com.fiec.projeto_back_gastroflow.features.entrada.services.EntradaService;
+import com.fiec.projeto_back_gastroflow.features.user.models.User;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
-
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @AllArgsConstructor
 @RequestMapping(value = "/v1/api/entradas")
 public class EntradaController {
 
-    private final EntradaServiceImpl entradaService;
+    private final EntradaService entradaService;
 
     // Criar Entrada (ADMIN e STANDARD)
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping(consumes = APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyRole('ADMIN','STANDARD')") // Padrão ProdutoController
-    public void createEntrada(@RequestBody EntradaDTO entradaDTO) {
-        entradaService.createEntrada(entradaDTO);
+    // Padrão ReceitaController: ResponseEntity<String>, @AuthenticationPrincipal
+    @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN','STANDARD')")
+    public ResponseEntity<String> createEntrada(
+            @AuthenticationPrincipal User userLogado,
+            @RequestBody EntradaDTO entradaDTO) {
+
+        java.util.UUID usuarioId = userLogado.getId();
+        entradaService.createEntrada(entradaDTO, usuarioId);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body("Entrada cadastrada com sucesso!");
     }
 
-    // Buscar Entrada por ID (UUID)
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping(produces = APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyRole('ADMIN','STANDARD','GUEST')") // Padrão ProdutoController
-    public EntradaDTO getById(@RequestParam Long id) {
-        return entradaService.getById(id);
+    // Buscar Entrada por ID (Long)
+    // Padrão ReceitaController: ResponseEntity<EntradaDTO>, @PathVariable
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','STANDARD','GUEST')")
+    public ResponseEntity<EntradaDTO> getById(@PathVariable Long id) {
+        EntradaDTO entrada = entradaService.getById(id);
+        if (entrada == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(entrada);
     }
 
     // Buscar Entradas por ID do Produto (Long)
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping(value = "/produto", produces = APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyRole('ADMIN','STANDARD', 'GUEST')") // Padrão ProdutoController
-    public List<EntradaDTO> getAllByProdutoId(@RequestParam Long produtoId) {
-        return entradaService.getAllByProdutoId(produtoId);
+    // Padrão ReceitaController: ResponseEntity<List<EntradaDTO>>, @PathVariable
+    @GetMapping(value = "/produto/{produtoId}")
+    @PreAuthorize("hasAnyRole('ADMIN','STANDARD', 'GUEST')")
+    public ResponseEntity<List<EntradaDTO>> getAllByProdutoId(@PathVariable Long produtoId) {
+        return ResponseEntity.ok(entradaService.getAllByProdutoId(produtoId));
     }
 
     // Listar todas as Entradas
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping(value = "/todas", produces = APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyRole('ADMIN','STANDARD','GUEST')") // Padrão ProdutoController
-    public List<EntradaDTO> findAll() {
-        return entradaService.findAll();
+    // Padrão ReceitaController: ResponseEntity<List<EntradaDTO>>
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','STANDARD','GUEST')")
+    public ResponseEntity<List<EntradaDTO>> findAll() {
+        return ResponseEntity.ok(entradaService.findAll());
     }
 
-    // Atualizar Entrada por ID (UUID)
-    @ResponseStatus(HttpStatus.OK)
-    @PatchMapping(consumes = APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyRole('ADMIN','STANDARD')") // Padrão ProdutoController
-    public void updateEntradaById(@RequestParam Long id, @RequestBody EntradaDTO entradaDTO) {
-        entradaService.updateEntradaById(id, entradaDTO);
+    // Atualizar Entrada por ID (Long)
+    // Padrão ReceitaController: ResponseEntity<String>, @PathVariable, @AuthenticationPrincipal
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','STANDARD')")
+    public ResponseEntity<String> updateEntradaById(
+            @AuthenticationPrincipal User userLogado,
+            @PathVariable Long id,
+            @RequestBody EntradaDTO entradaDTO) {
+
+        java.util.UUID usuarioId = userLogado.getId();
+
+        boolean updated = entradaService.updateEntradaById(id, entradaDTO, usuarioId);
+
+        if (updated) {
+            return ResponseEntity.ok("Entrada atualizada com sucesso!");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    // Deletar Entrada por ID (UUID)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @DeleteMapping()
-    @PreAuthorize("hasAnyRole('ADMIN','STANDARD')") // Padrão ProdutoController
-    public void deleteEntradaById(@RequestParam Long id) {
+    // Deletar Entrada por ID (Long)
+    // Padrão ReceitaController: ResponseEntity<String>, @PathVariable, 204 No Content
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','STANDARD')")
+    public ResponseEntity<String> deleteEntradaById(@PathVariable Long id) {
         entradaService.deleteEntradaById(id);
+        return ResponseEntity.noContent().build();
     }
 }

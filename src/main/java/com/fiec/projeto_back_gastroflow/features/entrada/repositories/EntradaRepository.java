@@ -5,11 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.UUID;
 
 @Repository
-public interface EntradaRepository extends JpaRepository<Entrada, Long> {
+public interface EntradaRepository extends JpaRepository<Entrada, Long> { // Usando Long
 
-    // Exemplo de método de busca customizado, seguindo o padrão de ProdutoRepository
+    // Método de busca customizado
     List<Entrada> findAllByProdutoId(Long produtoId);
 }
