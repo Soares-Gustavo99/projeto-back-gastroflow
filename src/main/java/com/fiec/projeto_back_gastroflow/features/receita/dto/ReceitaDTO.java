@@ -30,10 +30,12 @@ public class ReceitaDTO {
 
     private Date dataCadastro;
 
-    private Integer professorReceita;
+    private String professorReceita;
 
 
     private UUID userId;
 
-    private List<Long> produtoIds; // apenas IDs, relacão N:N
+    // >>> MUDANÇA CRÍTICA AQUI <<<
+    // Substituído List<Long> produtoIds por List<ReceitaProdutoItemDTO>
+    private List<ReceitaProdutoItemDTO> produtos;
 }
