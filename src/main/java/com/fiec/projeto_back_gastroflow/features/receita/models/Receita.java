@@ -1,6 +1,7 @@
 package com.fiec.projeto_back_gastroflow.features.receita.models;
 
 import com.fiec.projeto_back_gastroflow.features.products.models.Produto;
+import com.fiec.projeto_back_gastroflow.features.receitaProduto.ReceitaProduto;
 import com.fiec.projeto_back_gastroflow.features.user.models.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -37,18 +38,14 @@ public class Receita {
     @CreationTimestamp
     private Date dataCadastro;
 
-    private Integer professorReceita;
+    private String professorReceita;
 
     @ManyToOne
     @JoinColumn(name = "fk_usuario_id") // nome da coluna no banco
     private User user;
 
-    @ManyToMany
-    @JoinTable(
-            name = "receita_produto",
-            joinColumns = @JoinColumn(name = "receita_id"),
-            inverseJoinColumns = @JoinColumn(name = "produto_id")
-    )
-    //IMPORTAR PRODUTO AQUI
-    private List<Produto> produtos = new ArrayList<>();
+    // >>> MUDANÇA AQUI: Removido @ManyToMany <<<
+    // Nova relação One-to-Many com a entidade de junção ReceitaProduto
+    @OneToMany(mappedBy = "receita", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReceitaProduto> produtos = new ArrayList<>(); // Lista de ReceitaProduto
 }

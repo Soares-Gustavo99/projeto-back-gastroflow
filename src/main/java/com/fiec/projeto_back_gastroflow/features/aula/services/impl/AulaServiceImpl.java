@@ -8,6 +8,7 @@ import com.fiec.projeto_back_gastroflow.features.receita.models.Receita;
 import com.fiec.projeto_back_gastroflow.features.receita.repositories.ReceitaRepository;
 import com.fiec.projeto_back_gastroflow.features.user.models.User;
 import com.fiec.projeto_back_gastroflow.features.user.repositories.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ public class AulaServiceImpl implements AulaService {
     private final ReceitaRepository receitaRepository; // Para N:N com Receita
     private final UserRepository userRepository; // Para ManyToOne com User
 
+    @Transactional
     @Override
     public void createAula(AulaDTO aulaDTO, UUID usuarioId) {
         Aula aula = new Aula();

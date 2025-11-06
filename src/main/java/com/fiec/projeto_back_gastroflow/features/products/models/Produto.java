@@ -1,6 +1,7 @@
 package com.fiec.projeto_back_gastroflow.features.products.models;
 
 import com.fiec.projeto_back_gastroflow.features.receita.models.Receita;
+import com.fiec.projeto_back_gastroflow.features.receitaProduto.ReceitaProduto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -36,8 +37,10 @@ public class Produto {
     @Column
     private Date validade;
 
-    @ManyToMany(mappedBy = "produtos")
-    private List<Receita> receitas = new ArrayList<>();
+    // >>> MUDANÇA AQUI: Removido @ManyToMany(mappedBy = "produtos") <<<
+    // Nova relação One-to-Many com a entidade de junção ReceitaProduto
+    @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReceitaProduto> receitas = new ArrayList<>(); // Lista de ReceitaProduto
 
 
 
