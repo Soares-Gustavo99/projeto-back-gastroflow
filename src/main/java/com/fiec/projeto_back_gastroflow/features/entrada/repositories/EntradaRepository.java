@@ -11,5 +11,5 @@ import java.util.UUID;
 public interface EntradaRepository extends JpaRepository<Entrada, Long> {
 
     // Exemplo de método de busca customizado, seguindo o padrão de ProdutoRepository
-    List<Entrada> findAllByProdutoId(Long produtoId);
+    List<Entrada> findByProdutos_Id(Long produtoId);
 }
