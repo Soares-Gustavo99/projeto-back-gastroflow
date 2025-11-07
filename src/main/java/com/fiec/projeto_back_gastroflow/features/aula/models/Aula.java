@@ -37,9 +37,10 @@ public class Aula {
 
     private String periodo;
 
+    //OneToMany
 
 
-    @ManyToMany
+    @OneToMany
     @JoinTable(
             name = "aula_receita",
             joinColumns = @JoinColumn(name = "aula_id"),

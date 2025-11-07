@@ -3,6 +3,7 @@ package com.fiec.projeto_back_gastroflow.features.products.services.impl;
 
 import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoDTO;
 import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoSearch;
+import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoSummaryDTO;
 import com.fiec.projeto_back_gastroflow.features.products.models.Produto;
 import com.fiec.projeto_back_gastroflow.features.products.repositories.ProdutoRepository;
 import com.fiec.projeto_back_gastroflow.features.products.services.ProdutoService;
@@ -28,6 +29,8 @@ public class ProdutoServiceImpl implements ProdutoService {
                 produtoDTO.getQuantidadeEstoque(),
                 produtoDTO.getUnidadeMedida(),
                 produtoDTO.getValidade(),
+                produtoDTO.getImagem(),
+                produtoDTO.getEntrada(),
                 null // a lista de receitas será setada pelo ReceitaService
         );
 
@@ -43,7 +46,9 @@ public class ProdutoServiceImpl implements ProdutoService {
                         produto.getCategoria(),
                         produto.getQuantidadeEstoque(),
                         produto.getUnidadeMedida(),
-                        produto.getValidade()
+                        produto.getValidade(),
+                        produto.getImagem(),
+                        produto.getEntrada()
                 )
         ).orElse(null);
     }
@@ -56,7 +61,9 @@ public class ProdutoServiceImpl implements ProdutoService {
                         produto.getCategoria(),
                         produto.getQuantidadeEstoque(),
                         produto.getUnidadeMedida(),
-                        produto.getValidade()
+                        produto.getValidade(),
+                        produto.getImagem(),
+                        produto.getEntrada()
                 ))
                 .toList();
     }
@@ -70,7 +77,9 @@ public class ProdutoServiceImpl implements ProdutoService {
                         produto.getCategoria(),
                         produto.getQuantidadeEstoque(),
                         produto.getUnidadeMedida(),
-                        produto.getValidade()
+                        produto.getValidade(),
+                        produto.getImagem(),
+                        produto.getEntrada()
                 ))
                 .toList();
     }
@@ -90,22 +99,13 @@ public class ProdutoServiceImpl implements ProdutoService {
     }
 
     @Override
-    public List<ProdutoDTO> findAllWithQueries(ProdutoSearch produtoSearch) {
-        List<Produto> produtos = produtoRepository.findProdutos(produtoSearch);
+    public List<ProdutoSummaryDTO> findAllWithQueries(ProdutoSearch produtoSearch) {
+        List<ProdutoSummaryDTO> produtos = produtoRepository.findProdutos(produtoSearch);
 
         if (CollectionUtils.isEmpty(produtos)) {
             return List.of();
         } else {
-            return produtos.stream()
-                    .map(produto -> ProdutoDTO.builder()
-                            .nome(produto.getNome())
-                            .categoria(produto.getCategoria())
-                            .quantidadeEstoque(produto.getQuantidadeEstoque())
-                            .unidadeMedida(produto.getUnidadeMedida())
-                            .validade(produto.getValidade())
-                            .build()
-                    )
-                    .toList();
+            return produtos;
         }
     }
 

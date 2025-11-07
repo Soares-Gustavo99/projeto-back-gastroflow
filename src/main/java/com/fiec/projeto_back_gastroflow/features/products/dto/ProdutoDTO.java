@@ -1,5 +1,6 @@
 package com.fiec.projeto_back_gastroflow.features.products.dto;
 
+import com.fiec.projeto_back_gastroflow.features.entrada.models.Entrada;
 import com.fiec.projeto_back_gastroflow.features.products.models.Categoria;
 import com.fiec.projeto_back_gastroflow.features.products.models.UnidadeMedida;
 import jdk.jshell.Snippet;
@@ -28,5 +29,8 @@ public class ProdutoDTO {
 
     private Date validade;
 
+    private String imagem;
+
+    private Entrada entrada;
 
 }

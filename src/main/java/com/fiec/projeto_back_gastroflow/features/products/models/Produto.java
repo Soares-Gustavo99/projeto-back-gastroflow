@@ -1,9 +1,11 @@
 package com.fiec.projeto_back_gastroflow.features.products.models;
 
+import com.fiec.projeto_back_gastroflow.features.entrada.models.Entrada;
 import com.fiec.projeto_back_gastroflow.features.receita.models.Receita;
 import com.fiec.projeto_back_gastroflow.features.receitaProduto.ReceitaProduto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -15,6 +17,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Table(name ="Produtos")
 public class Produto {
 
@@ -36,6 +39,12 @@ public class Produto {
 
     @Column
     private Date validade;
+
+    @Column
+    private String imagem;
+
+    @ManyToOne
+    private Entrada entrada;
 
     // >>> MUDANÇA AQUI: Removido @ManyToMany(mappedBy = "produtos") <<<
     // Nova relação One-to-Many com a entidade de junção ReceitaProduto
