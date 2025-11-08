@@ -7,13 +7,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+import java.util.List;
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProdutoDetailsDTO {
-
-    private Long id;
 
     private String nome;
 
@@ -21,9 +22,20 @@ public class ProdutoDetailsDTO {
 
     private Categoria categoria;
 
-    private Integer quantidadeEstoque;
-
     private String imagem;
 
+    private Integer contagem;
 
+    private List<ProdutoLista> produtos;
+
+    static class ProdutoLista {
+
+        private Long id;
+
+        private Integer quantidadeEstoque;
+
+        private Date validade;
+
+        private Long entradaId;
+    }
 }
