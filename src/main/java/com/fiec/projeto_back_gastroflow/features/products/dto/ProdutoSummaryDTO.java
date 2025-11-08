@@ -18,6 +18,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class ProdutoSummaryDTO {
 
+    private Long id;
     private String nome;
     private Categoria categoria;         // Novo atributo
     private UnidadeMedida unidadeMedida;     // Novo atributo

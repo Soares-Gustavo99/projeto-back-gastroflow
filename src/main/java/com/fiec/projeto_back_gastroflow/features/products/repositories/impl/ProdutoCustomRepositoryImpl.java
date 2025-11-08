@@ -89,6 +89,7 @@ public class ProdutoCustomRepositoryImpl implements ProdutoCustomRepository {
         // 2.3. SELECT: Projetando para o ProdutoSummaryDTO
         cq.select(cb.construct(
                 ProdutoSummaryDTO.class,
+                produto.get("id"),
                 produto.get("nome"),
                 cb.min(produto.get("categoria")),               // Categoria (Agregada)
                 cb.min(produto.get("unidadeMedida")),           // UnidadeMedida (Agregada)
