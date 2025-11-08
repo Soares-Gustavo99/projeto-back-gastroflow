@@ -4,6 +4,7 @@ import com.fiec.projeto_back_gastroflow.features.entrada.dto.EntradaDTO;
 import com.fiec.projeto_back_gastroflow.features.entrada.models.Entrada;
 import com.fiec.projeto_back_gastroflow.features.entrada.repositories.EntradaRepository;
 import com.fiec.projeto_back_gastroflow.features.entrada.services.EntradaService;
+import com.fiec.projeto_back_gastroflow.features.products.models.Produto;
 import com.fiec.projeto_back_gastroflow.features.products.repositories.ProdutoRepository; // ID Long
 import com.fiec.projeto_back_gastroflow.features.supplier.models.Supplier;
 import com.fiec.projeto_back_gastroflow.features.user.models.User;
@@ -37,7 +38,7 @@ public class EntradaServiceImpl implements EntradaService {
                 entrada.getDataEntrada(),
                 entrada.getQuantidade(),
                 entrada.getObservacao(),
-                entrada.getProduto().getId(),
+                entrada.getProdutos().stream().map(Produto::getId).toList(),
                 entrada.getFornecedor() != null ? entrada.getFornecedor().getId() : null,
                 entrada.getUser().getId(),
                 entrada.getId()
@@ -63,25 +64,25 @@ public class EntradaServiceImpl implements EntradaService {
     @Override
     public void createEntrada(EntradaDTO entradaDTO) {
         // Busca de entidades por ID para criar o objeto Entrada
-        var produto = produtoRepository.findById(entradaDTO.getProdutoId()).orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Produto não encontrado com ID: " + entradaDTO.getProdutoId()));
-
-        var user = findUserById(entradaDTO.getUserId());
-        // Fornecedor é opcional (nullable = true no Model)
-        var supplier = entradaDTO.getFornecedorId() != null ?
-                findSupplierById(entradaDTO.getFornecedorId()) :
-                null;
-
-        Entrada entrada = new Entrada(
-                entradaDTO.getDataEntrada(),
-                entradaDTO.getQuantidade(),
-                entradaDTO.getObservacao(),
-                produto,
-                supplier,
-                user
-        );
-
-        entradaRepository.save(entrada);
+//        var produto = produtoRepository.findById(entradaDTO.getProdutoIds()).orElseThrow(
+//                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Produto não encontrado com ID: " + entradaDTO.getProdutoId()));
+//
+//        var user = findUserById(entradaDTO.getUserId());
+//        // Fornecedor é opcional (nullable = true no Model)
+//        var supplier = entradaDTO.getFornecedorId() != null ?
+//                findSupplierById(entradaDTO.getFornecedorId()) :
+//                null;
+//
+//        Entrada entrada = new Entrada(
+//                entradaDTO.getDataEntrada(),
+//                entradaDTO.getQuantidade(),
+//                entradaDTO.getObservacao(),
+//                produto,
+//                supplier,
+//                user
+//        );
+//
+//        entradaRepository.save(entrada);
     }
 
     // Busca por ID (UUID) - Corrigido para usar UUID
@@ -94,7 +95,7 @@ public class EntradaServiceImpl implements EntradaService {
     // Listar todas as Entradas por ID do Produto (ID Long)
     @Override
     public List<EntradaDTO> getAllByProdutoId(Long produtoId) {
-        return entradaRepository.findAllByProdutoId(produtoId).stream()
+        return entradaRepository.findByProdutos_Id(produtoId).stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
@@ -110,28 +111,29 @@ public class EntradaServiceImpl implements EntradaService {
     // Atualizar Entrada por ID (UUID) - Corrigido para usar UUID
     @Override
     public boolean updateEntradaById(Long id, EntradaDTO entradaDTO) {
-        return entradaRepository.findById(id).map(entrada -> {
-
-            // Re-busca das entidades para update
-            var produto = produtoRepository.findById(entradaDTO.getProdutoId()).orElseThrow(
-                    () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Produto não encontrado com ID: " + entradaDTO.getProdutoId()));
-
-            var user = findUserById(entradaDTO.getUserId());
-            var supplier = entradaDTO.getFornecedorId() != null ?
-                    findSupplierById(entradaDTO.getFornecedorId()) :
-                    null;
-
-            // Atualiza os campos
-            entrada.setDataEntrada(entradaDTO.getDataEntrada());
-            entrada.setQuantidade(entradaDTO.getQuantidade());
-            entrada.setObservacao(entradaDTO.getObservacao());
-            entrada.setProduto(produto);
-            entrada.setFornecedor(supplier);
-            entrada.setUser(user);
-
-            entradaRepository.save(entrada);
-            return true;
-        }).orElse(false);
+//        return entradaRepository.findById(id).map(entrada -> {
+//
+//            // Re-busca das entidades para update
+//            var produto = produtoRepository.findById(entradaDTO.getProdutoId()).orElseThrow(
+//                    () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Produto não encontrado com ID: " + entradaDTO.getProdutoId()));
+//
+//            var user = findUserById(entradaDTO.getUserId());
+//            var supplier = entradaDTO.getFornecedorId() != null ?
+//                    findSupplierById(entradaDTO.getFornecedorId()) :
+//                    null;
+//
+//            // Atualiza os campos
+//            entrada.setDataEntrada(entradaDTO.getDataEntrada());
+//            entrada.setQuantidade(entradaDTO.getQuantidade());
+//            entrada.setObservacao(entradaDTO.getObservacao());
+//            entrada.setProduto(produto);
+//            entrada.setFornecedor(supplier);
+//            entrada.setUser(user);
+//
+//            entradaRepository.save(entrada);
+//            return true;
+//        }).orElse(false);
+        return false;
     }
 
     // Deletar Entrada por ID (UUID) - Corrigido para usar UUID

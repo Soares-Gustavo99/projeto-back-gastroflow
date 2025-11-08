@@ -3,6 +3,7 @@ package com.fiec.projeto_back_gastroflow.features.products.controllers;
 
 import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoDTO;
 import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoSearch;
+import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoSummaryDTO;
 import com.fiec.projeto_back_gastroflow.features.products.services.impl.ProdutoServiceImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -102,4 +103,10 @@ public class ProdutoController {
     public void deleteProdutoById(@Parameter(description = "ID do Produto a ser deletado.") @RequestParam Long id){
         produtoService.deleteProdutoById(id);
     }
+
+    @GetMapping("/filters/all")
+    public List<ProdutoSummaryDTO> getProductById(ProdutoSearch productSearch){
+        return produtoService.findAllWithQueries(productSearch);
+    }
 }
+

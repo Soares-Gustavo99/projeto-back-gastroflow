@@ -1,6 +1,7 @@
 package com.fiec.projeto_back_gastroflow.features.products.repositories.impl;
 
 import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoSearch;
+import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoSummaryDTO;
 import com.fiec.projeto_back_gastroflow.features.products.models.Produto;
 import com.fiec.projeto_back_gastroflow.features.products.models.SortOrder;
 import com.fiec.projeto_back_gastroflow.features.products.repositories.ProdutoCustomRepository;
@@ -10,6 +11,7 @@ import jakarta.persistence.criteria.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Repository
@@ -17,46 +19,26 @@ public class ProdutoCustomRepositoryImpl implements ProdutoCustomRepository {
 
     private final EntityManager entityManager;
 
-    // Construtor para injeção do EntityManager
     public ProdutoCustomRepositoryImpl(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
-    /**
-     * Busca produtos de forma customizada usando a Criteria API do JPA.
-     * @param produtoSearch Objeto com os critérios de busca e ordenação.
-     * @return Lista de produtos que atendem aos critérios.
-     */
-    public List<Produto> findProdutos(ProdutoSearch produtoSearch) {
+    public List<ProdutoSummaryDTO> findProdutos(ProdutoSearch produtoSearch) {
 
-        // 1. Inicialização da Criteria API
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Produto> cq = cb.createQuery(Produto.class);
-        Root<Produto> produto = cq.from(Produto.class); // FROM Produto p
+        CriteriaQuery<ProdutoSummaryDTO> cq = cb.createQuery(ProdutoSummaryDTO.class);
+        Root<Produto> produto = cq.from(Produto.class);
 
         List<Predicate> predicates = new ArrayList<>();
+        List<Predicate> havingPredicates = new ArrayList<>();
 
         // 2. Construção dinâmica dos filtros (WHERE)
 
-        // Filtro: Nome (busca parcial, case-insensitive)
-        if (produtoSearch.getNome() != null && !produtoSearch.getNome().trim().isEmpty()) {
-            Predicate nomePredicate = cb.like(
-                    cb.upper(produto.get("nome")),
-                    "%" + produtoSearch.getNome().toUpperCase().trim() + "%"
-            );
-            predicates.add(nomePredicate);
-        }
-
+        // Mantemos os filtros no WHERE, que funcionam antes do agrupamento
         // Filtro: Categoria (busca exata)
         if (produtoSearch.getCategoria() != null) {
             Predicate categoriaPredicate = cb.equal(produto.get("categoria"), produtoSearch.getCategoria());
             predicates.add(categoriaPredicate);
-        }
-
-        // Filtro: Quantidade em estoque (igualdade exata)
-        if (produtoSearch.getQuantidadeEstoque() != null) {
-            Predicate quantidadePredicate = cb.equal(produto.get("quantidadeEstoque"), produtoSearch.getQuantidadeEstoque());
-            predicates.add(quantidadePredicate);
         }
 
         // Filtro: Unidade de medida (igualdade exata)
@@ -65,36 +47,88 @@ public class ProdutoCustomRepositoryImpl implements ProdutoCustomRepository {
             predicates.add(unidadePredicate);
         }
 
-        // Filtro: Validade (igualdade exata, pode adaptar para < ou > se quiser)
+        // Filtro: Validade (igualdade exata)
         if (produtoSearch.getValidade() != null) {
             Predicate validadePredicate = cb.equal(produto.get("validade"), produtoSearch.getValidade());
             predicates.add(validadePredicate);
         }
 
-        // Combina todos os filtros com AND
+        // Filtro LIKE no nome
+        if (produtoSearch.getNome() != null && !produtoSearch.getNome().trim().isEmpty()) {
+            Predicate nomeLike = cb.like(
+                    cb.upper(produto.get("nome")),
+                    "%" + produtoSearch.getNome().toUpperCase().trim() + "%"
+            );
+            predicates.add(nomeLike);
+        }
+
+        // Combina os filtros restantes com AND (WHERE)
         if (!predicates.isEmpty()) {
             cq.where(cb.and(predicates.toArray(new Predicate[0])));
         }
 
-        // 3. Ordenação dinâmica (ORDER BY)
+        // --- Lógica de GROUP BY e HAVING ---
+
+        // 2.1. GROUP BY: Agrupando por todos os campos que definem o DTO
+        cq.groupBy(
+                produto.get("nome")
+        );
+
+        // 2.2. HAVING: Filtrando grupos pela contagem
+        if (produtoSearch.getQuantidadeEstoque() != null) {
+            Expression<Long> countExpression = cb.count(produto.get("nome"));
+            Predicate havingPredicate = cb.equal(countExpression, produtoSearch.getQuantidadeEstoque().longValue());
+            havingPredicates.add(havingPredicate);
+        }
+
+        // Combina os filtros HAVING com AND
+        if (!havingPredicates.isEmpty()) {
+            cq.having(cb.and(havingPredicates.toArray(new Predicate[0])));
+        }
+
+        // 2.3. SELECT: Projetando para o ProdutoSummaryDTO
+        cq.select(cb.construct(
+                ProdutoSummaryDTO.class,
+                produto.get("id"),
+                produto.get("nome"),
+                cb.min(produto.get("categoria")),               // Categoria (Agregada)
+                cb.min(produto.get("unidadeMedida")),           // UnidadeMedida (Agregada)
+                cb.min(produto.get("validade")),
+                cb.count(produto),                                   // Mapeia para 'contagem'
+                cb.sum(produto.get("quantidadeEstoque")) // Mapeia para 'quantidade'
+        ));
+
+        // 3. Ordenação dinâmica (ORDER BY) - Adaptada
         String sortBy = produtoSearch.getSortBy();
         SortOrder sortOrder = produtoSearch.getSortOrder() != null ? produtoSearch.getSortOrder() : SortOrder.ASC;
 
         if (sortBy != null && !sortBy.trim().isEmpty()) {
             String safeSortBy = getSafeSortField(sortBy);
+            Expression<?> sortExpression;
+
+            if (Arrays.asList("nome", "categoria", "unidadeMedida", "validade").contains(safeSortBy)) {
+                sortExpression = produto.get(safeSortBy);
+            } else if ("quantidade".equalsIgnoreCase(safeSortBy) || "quantidadeestoque".equalsIgnoreCase(safeSortBy)) {
+                sortExpression = cb.sum(produto.get("quantidadeEstoque"));
+            } else if ("count".equalsIgnoreCase(safeSortBy)) {
+                sortExpression = cb.count(produto);
+            } else {
+                sortExpression = produto.get("nome");
+            }
 
             Order order = (sortOrder == SortOrder.DESC)
-                    ? cb.desc(produto.get(safeSortBy))
-                    : cb.asc(produto.get(safeSortBy));
+                    ? cb.desc(sortExpression)
+                    : cb.asc(sortExpression);
 
             cq.orderBy(order);
         } else {
-            // Ordenação padrão por ID
-            cq.orderBy(cb.asc(produto.get("id")));
+            cq.orderBy(cb.asc(produto.get("nome")));
         }
 
+
         // 4. Execução da query
-        TypedQuery<Produto> query = entityManager.createQuery(cq);
+        TypedQuery<ProdutoSummaryDTO> query = entityManager.createQuery(cq);
+
         return query.getResultList();
     }
 
@@ -105,15 +139,18 @@ public class ProdutoCustomRepositoryImpl implements ProdutoCustomRepository {
                 return "nome";
             case "categoria":
                 return "categoria";
-            case "quantidadeestoque":
-                return "quantidadeEstoque";
             case "unidademedida":
                 return "unidadeMedida";
             case "validade":
                 return "validade";
+            case "quantidadeestoque":
+            case "quantidade":
+                return "quantidade";
+            case "count":
+                return "count";
             case "id":
             default:
-                return "id";
+                return "nome";
         }
     }
 }

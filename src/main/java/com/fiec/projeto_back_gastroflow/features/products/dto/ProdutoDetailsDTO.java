@@ -1,36 +1,29 @@
 package com.fiec.projeto_back_gastroflow.features.products.dto;
 
-import com.fiec.projeto_back_gastroflow.features.entrada.models.Entrada;
 import com.fiec.projeto_back_gastroflow.features.products.models.Categoria;
 import com.fiec.projeto_back_gastroflow.features.products.models.UnidadeMedida;
-import jdk.jshell.Snippet;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
-@Builder
 @Data
-@NoArgsConstructor
+@Builder
 @AllArgsConstructor
-public class ProdutoDTO {
+@NoArgsConstructor
+public class ProdutoDetailsDTO {
 
     private Long id;
 
     private String nome;
 
+    private UnidadeMedida unidadeMedida;
+
     private Categoria categoria;
 
     private Integer quantidadeEstoque;
 
-    private UnidadeMedida unidadeMedida;
-
-    private Date validade;
-
     private String imagem;
 
-    private Entrada entrada;
 
 }

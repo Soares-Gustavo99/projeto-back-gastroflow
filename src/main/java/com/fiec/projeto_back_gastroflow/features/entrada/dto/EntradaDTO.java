@@ -1,10 +1,12 @@
 package com.fiec.projeto_back_gastroflow.features.entrada.dto;
 
+import com.fiec.projeto_back_gastroflow.features.products.models.Produto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -17,7 +19,7 @@ public class EntradaDTO {
     private Date dataEntrada;
     private Integer quantidade;
     private String observacao;
-    private Long produtoId; // ID do Produto é Long
+    private List<Long> produtoIds; // ID do Produto é Long
     private Long fornecedorId; // ID do Fornecedor é UUID
     private UUID userId; // ID do Usuário é UUID
 
