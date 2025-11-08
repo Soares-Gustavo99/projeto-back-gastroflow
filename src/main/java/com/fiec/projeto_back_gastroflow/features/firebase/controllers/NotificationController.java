@@ -11,9 +11,15 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+// IMPORTES SWAGGER
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import java.security.Principal;
 
+@Tag(name = "Notificações (FCM)", description = "Gerenciamento de tokens de notificação e envio de mensagens.")
 @RestController
 @RequestMapping("/v1/api/notifications")
 @AllArgsConstructor
@@ -28,6 +34,12 @@ public class NotificationController {
      * @param request O DTO contendo o novo fcmToken.
      * @return Resposta 200 OK com o usuário atualizado (ou um DTO de resposta).
      */
+    @Operation(summary = "Registra/Atualiza o token FCM do usuário logado", description = "Usado pelo aplicativo cliente para enviar o token de notificação Firebase (FCM) para o servidor.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Token atualizado com sucesso."),
+            @ApiResponse(responseCode = "400", description = "Requisição inválida (e.g., token ausente)."),
+            @ApiResponse(responseCode = "401", description = "Não autorizado.")
+    })
     @PutMapping("/token")
     public void registerFcmToken(
             // Assume que o ID do usuário pode ser obtido via Principal
@@ -35,18 +47,7 @@ public class NotificationController {
             Authentication authentication,
             @Valid @RequestBody FcmTokenRequest request) {
 
-        // 1. Simulação de obtenção do ID do usuário logado (MUITO IMPORTANTE!)
-        // Na vida real, 'principal.getName()' retornaria o username/email.
-        // Você precisaria de um método para buscar o User ID a partir desse nome.
-
-        // Exemplo: Simular que o ID é 1L para fins didáticos,
-        // mas você deve implementar a lógica real de extração do ID do usuário logado.
-
-
-        // **Lógica Real com Spring Security:**
-        // UserDetails userDetails = (UserDetails) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
-        // Long userId = userRepository.findByEmail(userDetails.getUsername()).getId();
-
+        // ... (omitting body for brevity, keeping only the logic that uses 'authentication')
         User myUser = (User) authentication.getPrincipal();
 
         System.out.println("Recebendo novo token FCM para o usuário ID: " + myUser.getId());
@@ -56,6 +57,12 @@ public class NotificationController {
 
     }
 
+    @Operation(summary = "Envia uma notificação de teste a um usuário", description = "Endpoint para envio manual de notificação para fins de teste.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Notificação enviada com sucesso."),
+            @ApiResponse(responseCode = "400", description = "Dados da mensagem inválidos."),
+            @ApiResponse(responseCode = "500", description = "Erro ao enviar a notificação via Firebase.")
+    })
     @PostMapping("/sendToUser")
     public String sendToUser(@RequestBody NotificationMessage dto) throws FirebaseMessagingException {
         return notificationService.sendNotificationToUser(dto);
