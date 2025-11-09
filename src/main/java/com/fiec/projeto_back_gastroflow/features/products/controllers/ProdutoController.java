@@ -2,6 +2,7 @@ package com.fiec.projeto_back_gastroflow.features.products.controllers;
 
 
 import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoDTO;
+import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoDetailsDTO;
 import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoSearch;
 import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoSummaryDTO;
 import com.fiec.projeto_back_gastroflow.features.products.services.impl.ProdutoServiceImpl;
@@ -63,6 +64,13 @@ public class ProdutoController {
     @PreAuthorize("hasAnyRole('ADMIN','STANDARD', 'GUEST')")
     public List<ProdutoDTO> getAllByNome(@Parameter(description = "Parte ou nome completo do produto.") @RequestParam String nome){
         return produtoService.getAllByNome(nome);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "details/nome", produces = APPLICATION_JSON_VALUE) // Novo endpoint
+    @PreAuthorize("hasAnyRole('ADMIN','STANDARD', 'GUEST')")
+    public ProdutoDetailsDTO getDetailsByNome(@Parameter(description = "Parte ou nome completo do produto.") @RequestParam String nome){
+        return produtoService.findByName(nome);
     }
 
     @Operation(summary = "Lista todos os produtos", description = "Retorna uma lista de todos os produtos cadastrados. Permitido para 'ADMIN', 'STANDARD' ou 'GUEST'.")

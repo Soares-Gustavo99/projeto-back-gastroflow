@@ -28,7 +28,9 @@ public class ProdutoDetailsDTO {
 
     private List<ProdutoLista> produtos;
 
-    static class ProdutoLista {
+    @Builder
+    @Data
+    public static class ProdutoLista {
 
         private Long id;
 
