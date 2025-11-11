@@ -38,6 +38,7 @@ public class EntradaServiceImpl implements EntradaService {
         // Converte Model para DTO, extraindo IDs de chave estrangeira
         return new EntradaDTO(
                 entrada.getDataEntrada(),
+                entrada.getObservacao(),
                 entrada.getFornecedor() != null ? entrada.getFornecedor().getId() : null,
                 entrada.getUser().getId(),
                 entrada.getId()
@@ -55,6 +56,11 @@ public class EntradaServiceImpl implements EntradaService {
         // Simulação de busca
         return supplierRepository.findById(id).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Fornecedor não encontrado com ID: " + id));
+    }
+
+    private Produto findProdutoById(Long id) { // <-- GARANTA QUE ESTE MÉTODO ESTEJA PRESENTE
+        return produtoRepository.findById(id).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Produto não encontrado com ID: " + id));
     }
 
 
@@ -79,7 +85,6 @@ public class EntradaServiceImpl implements EntradaService {
         if (entradaDTO.getProdutos() != null) {
             for (var itemDTO : entradaDTO.getProdutos()) {
 
-                // CORREÇÃO 2: Usando o método findProdutoById (entidade) e não getById() (DTO)
                 Produto produto = findProdutoById(itemDTO.getProdutoId());
 
                 // 2. Criar a chave composta (EntradaProdutoId)
