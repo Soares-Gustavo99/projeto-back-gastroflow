@@ -27,6 +27,7 @@ public class AulaServiceImpl implements AulaService {
     @Override
     public void createAula(AulaDTO aulaDTO, UUID usuarioId) {
         Aula aula = new Aula();
+        aula.setNome(aulaDTO.getNome());
         aula.setDescricao(aulaDTO.getDescricao());
         aula.setData(aulaDTO.getData());
         aula.setInstrutor(aulaDTO.getInstrutor());
