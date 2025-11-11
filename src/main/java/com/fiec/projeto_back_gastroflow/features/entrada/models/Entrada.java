@@ -1,6 +1,8 @@
 package com.fiec.projeto_back_gastroflow.features.entrada.models;
 
+import com.fiec.projeto_back_gastroflow.features.entradaProduto.EntradaProduto;
 import com.fiec.projeto_back_gastroflow.features.products.models.Produto;
+import com.fiec.projeto_back_gastroflow.features.receitaProduto.ReceitaProduto;
 import com.fiec.projeto_back_gastroflow.features.supplier.models.Supplier;
 import com.fiec.projeto_back_gastroflow.features.user.models.User;
 import jakarta.persistence.*;
@@ -8,7 +10,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -26,16 +30,9 @@ public class Entrada {
     @Column(nullable = false)
     private Date dataEntrada;
 
-    @Column(nullable = false)
-    private Integer quantidade;
-
     @Column
     private String observacao;
 
-    // Relação ManyToOne com Produto (Produto tem Id Long)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "produto_id", nullable = false)
-    private Produto produto;
 
     // Relação ManyToOne com Fornecedor (Supplier tem id UUID)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -47,16 +44,15 @@ public class Entrada {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // Construtor sem o ID (para uso ao criar uma nova entrada)
-    public Entrada(Date dataEntrada, Integer quantidade, Produto produto, Supplier fornecedor, User user) {
-        this.dataEntrada = dataEntrada;
-        this.quantidade = quantidade;
-        this.observacao = observacao;
-        this.produto = produto;
-        this.fornecedor = fornecedor;
-        this.user = user;
-    }
 
-    public Entrada(Date dataEntrada, Integer quantidade, String observacao, Produto produto, Supplier supplier, User user) {
-    }
+
+    @OneToMany(mappedBy = "entrada", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EntradaProduto> produtos = new ArrayList<>(); // Lista de EntradaProduto
+
+
+    public Entrada(Date dataEntrada, String observacao, Supplier fornecedor, User user) {
+        this.dataEntrada = dataEntrada;
+        this.observacao = observacao;
+        this.fornecedor = fornecedor;
+        this.user = user; }
 }

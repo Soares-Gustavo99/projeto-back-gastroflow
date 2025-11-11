@@ -4,6 +4,9 @@ import com.fiec.projeto_back_gastroflow.features.entrada.dto.EntradaDTO;
 import com.fiec.projeto_back_gastroflow.features.entrada.models.Entrada;
 import com.fiec.projeto_back_gastroflow.features.entrada.repositories.EntradaRepository;
 import com.fiec.projeto_back_gastroflow.features.entrada.services.EntradaService;
+import com.fiec.projeto_back_gastroflow.features.entradaProduto.EntradaProduto;
+import com.fiec.projeto_back_gastroflow.features.entradaProduto.EntradaProdutoId;
+import com.fiec.projeto_back_gastroflow.features.products.models.Produto;
 import com.fiec.projeto_back_gastroflow.features.products.repositories.ProdutoRepository; // ID Long
 import com.fiec.projeto_back_gastroflow.features.supplier.models.Supplier;
 import com.fiec.projeto_back_gastroflow.features.user.models.User;
@@ -35,9 +38,6 @@ public class EntradaServiceImpl implements EntradaService {
         // Converte Model para DTO, extraindo IDs de chave estrangeira
         return new EntradaDTO(
                 entrada.getDataEntrada(),
-                entrada.getQuantidade(),
-                entrada.getObservacao(),
-                entrada.getProduto().getId(),
                 entrada.getFornecedor() != null ? entrada.getFornecedor().getId() : null,
                 entrada.getUser().getId(),
                 entrada.getId()
@@ -62,27 +62,45 @@ public class EntradaServiceImpl implements EntradaService {
 
     @Override
     public void createEntrada(EntradaDTO entradaDTO) {
-        // Busca de entidades por ID para criar o objeto Entrada
-        var produto = produtoRepository.findById(entradaDTO.getProdutoId()).orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Produto não encontrado com ID: " + entradaDTO.getProdutoId()));
 
-        var user = findUserById(entradaDTO.getUserId());
-        // Fornecedor é opcional (nullable = true no Model)
-        var supplier = entradaDTO.getFornecedorId() != null ?
+        User user = findUserById(entradaDTO.getUserId());
+        Supplier fornecedor = entradaDTO.getFornecedorId() != null ?
                 findSupplierById(entradaDTO.getFornecedorId()) :
                 null;
 
         Entrada entrada = new Entrada(
                 entradaDTO.getDataEntrada(),
-                entradaDTO.getQuantidade(),
                 entradaDTO.getObservacao(),
-                produto,
-                supplier,
+                fornecedor,
                 user
         );
 
+        // --- NOVO: Processar a lista de produtos (itens) e criar EntradaProduto ---
+        if (entradaDTO.getProdutos() != null) {
+            for (var itemDTO : entradaDTO.getProdutos()) {
+
+                // CORREÇÃO 2: Usando o método findProdutoById (entidade) e não getById() (DTO)
+                Produto produto = findProdutoById(itemDTO.getProdutoId());
+
+                // 2. Criar a chave composta (EntradaProdutoId)
+                var entradaProdutoId = new EntradaProdutoId(null, produto.getId());
+
+                // 3. Criar a entidade de relacionamento EntradaProduto
+                var entradaProduto = new EntradaProduto(
+                        entradaProdutoId,
+                        itemDTO.getQuantidade(),
+                        entrada, // Associa a Entrada (ainda não salva)
+                        produto
+                );
+
+                // 4. Adicionar à lista.
+                entrada.getProdutos().add(entradaProduto);
+            }
+        }
+
         entradaRepository.save(entrada);
     }
+
 
     // Busca por ID (UUID) - Corrigido para usar UUID
     @Override
@@ -91,13 +109,13 @@ public class EntradaServiceImpl implements EntradaService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Entrada não encontrada com ID: " + id));
     }
 
-    // Listar todas as Entradas por ID do Produto (ID Long)
     @Override
     public List<EntradaDTO> getAllByProdutoId(Long produtoId) {
         return entradaRepository.findAllByProdutoId(produtoId).stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
+
 
     // Listar todas as Entradas
     @Override
@@ -112,10 +130,6 @@ public class EntradaServiceImpl implements EntradaService {
     public boolean updateEntradaById(Long id, EntradaDTO entradaDTO) {
         return entradaRepository.findById(id).map(entrada -> {
 
-            // Re-busca das entidades para update
-            var produto = produtoRepository.findById(entradaDTO.getProdutoId()).orElseThrow(
-                    () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Produto não encontrado com ID: " + entradaDTO.getProdutoId()));
-
             var user = findUserById(entradaDTO.getUserId());
             var supplier = entradaDTO.getFornecedorId() != null ?
                     findSupplierById(entradaDTO.getFornecedorId()) :
@@ -123,9 +137,7 @@ public class EntradaServiceImpl implements EntradaService {
 
             // Atualiza os campos
             entrada.setDataEntrada(entradaDTO.getDataEntrada());
-            entrada.setQuantidade(entradaDTO.getQuantidade());
             entrada.setObservacao(entradaDTO.getObservacao());
-            entrada.setProduto(produto);
             entrada.setFornecedor(supplier);
             entrada.setUser(user);
 
