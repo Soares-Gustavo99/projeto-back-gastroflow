@@ -129,6 +129,7 @@ public class ReceitaServiceImpl implements ReceitaService {
     public List<ReceitaDTO> findAll() {
         return receitaRepository.findAll().stream().map(receita -> {
             ReceitaDTO dto = new ReceitaDTO();
+            dto.setId(receita.getId());
             dto.setNome(receita.getNome());
             dto.setDescricao(receita.getDescricao());
             dto.setTempoPreparo(receita.getTempoPreparo());
