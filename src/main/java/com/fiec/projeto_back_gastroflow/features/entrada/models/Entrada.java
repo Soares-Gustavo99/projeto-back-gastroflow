@@ -33,6 +33,9 @@ public class Entrada {
     @Column
     private String observacao;
 
+    @Column
+    private Long preco;
+
 
     // Relação ManyToOne com Fornecedor (Supplier tem id UUID)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -50,9 +53,11 @@ public class Entrada {
     private List<EntradaProduto> produtos = new ArrayList<>(); // Lista de EntradaProduto
 
 
-    public Entrada(Date dataEntrada, String observacao, Supplier fornecedor, User user) {
+    public Entrada(Date dataEntrada, String observacao, Supplier fornecedor, Long preco, User user) {
         this.dataEntrada = dataEntrada;
         this.observacao = observacao;
         this.fornecedor = fornecedor;
+        this.preco = preco;
         this.user = user; }
+
 }

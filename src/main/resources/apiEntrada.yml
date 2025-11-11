@@ -3,6 +3,7 @@ info:
   title: GastroFlow API - Módulo Entradas
   description: API para gerenciamento de Entradas/Recebimento de Estoque com suporte a múltiplos produtos por entrada (EntradaProduto).
   version: 1.0.0
+
 servers:
   - url: http://localhost:5000/v1/api
     description: Servidor Local (GastroFlow API Base)
@@ -36,13 +37,13 @@ paths:
             example:
               dataEntrada: "2025-11-10T10:00:00Z"
               observacao: "Nota fiscal 9876. Lote especial de cervejas."
-              fornecedorId: 2
-              userId: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+              fornecedorId: 1
+              preco: 12000
               produtos:
                 - produtoId: 101
                   quantidade: 50
                 - produtoId: 102
-                  quantidade: 25
+                  quantidade: 10
       responses:
         '201':
           description: Entrada criada com sucesso.
@@ -50,64 +51,40 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
 
     # ----------------------------------------------------
-    # GET /entradas?id={id} - Buscar Entrada por ID
-    # ----------------------------------------------------
-    get:
-      tags:
-        - Entradas
-      summary: Buscar Entrada por ID.
-      operationId: getEntradaById
-      parameters:
-        - name: id
-          in: query # Usando Query Param conforme o @RequestParam do Controller
-          required: true
-          schema:
-            type: integer
-            format: int64
-          description: ID da Entrada.
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Sucesso. Retorna a Entrada.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EntradaDTO'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-    # ----------------------------------------------------
-    # PATCH /entradas?id={id} - Atualizar Entrada por ID
+    # PATCH /entradas - Atualizar Entrada
     # ----------------------------------------------------
     patch:
       tags:
         - Entradas
-      summary: Atualizar uma Entrada existente por ID.
+      summary: Atualiza uma entrada de estoque existente (data, observação, fornecedor, preço).
+      description: |
+        **Nota Importante:** Este endpoint só atualiza os campos principais da `Entrada`. 
+        A atualização de produtos requer outro endpoint específico.
       operationId: updateEntradaById
+      security:
+        - bearerAuth: []
       parameters:
-        - name: id
-          in: query # Usando Query Param conforme o @RequestParam do Controller
-          required: true
+        - in: query
+          name: id
           schema:
             type: integer
             format: int64
+          required: true
           description: ID da Entrada a ser atualizada.
-      security:
-        - bearerAuth: []
       requestBody:
-        description: Dados da Entrada para atualização.
+        description: Dados da Entrada a serem atualizados.
         required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/EntradaDTO'
+            example:
+              dataEntrada: "2025-11-10T11:30:00Z"
+              observacao: "Observação corrigida. Nota fiscal 9876."
+              fornecedorId: 1
+              preco: 12500
       responses:
         '200':
           description: Entrada atualizada com sucesso.
@@ -119,23 +96,23 @@ paths:
           $ref: '#/components/responses/NotFound'
 
     # ----------------------------------------------------
-    # DELETE /entradas?id={id} - Deletar Entrada por ID
+    # DELETE /entradas - Deletar Entrada
     # ----------------------------------------------------
     delete:
       tags:
         - Entradas
-      summary: Deletar Entrada por ID.
+      summary: Deleta uma entrada de estoque pelo ID.
       operationId: deleteEntradaById
+      security:
+        - bearerAuth: []
       parameters:
-        - name: id
-          in: query # Usando Query Param conforme o @RequestParam do Controller
-          required: true
+        - in: query
+          name: id
           schema:
             type: integer
             format: int64
+          required: true
           description: ID da Entrada a ser deletada.
-      security:
-        - bearerAuth: []
       responses:
         '204':
           description: Entrada deletada com sucesso (No Content).
@@ -144,74 +121,97 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /entradas/todas:
     # ----------------------------------------------------
-    # GET /entradas/todas - Listar todas as Entradas
+    # GET /entradas?id={id} - Buscar Entrada por ID
     # ----------------------------------------------------
     get:
       tags:
         - Entradas
-      summary: Retorna a lista completa de todas as Entradas.
+      summary: Busca uma entrada de estoque pelo ID.
+      operationId: getEntradaById
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ID da Entrada.
+      responses:
+        '200':
+          description: Entrada encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntradaReturnDTO'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /entradas/todas:
+    get:
+      tags:
+        - Entradas
+      summary: Lista todas as entradas de estoque registradas.
       operationId: findAllEntradas
       security:
         - bearerAuth: []
       responses:
         '200':
-          description: Lista de Entradas.
+          description: Lista de todas as entradas.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/EntradaDTO'
+                  $ref: '#/components/schemas/EntradaReturnDTO'
         '401':
           $ref: '#/components/responses/Unauthorized'
 
   /entradas/produto:
-    # ----------------------------------------------------
-    # GET /entradas/produto?produtoId={produtoId} - Buscar por Produto
-    # ----------------------------------------------------
     get:
       tags:
         - Entradas
-      summary: Buscar todas as Entradas que contêm um Produto específico.
-      operationId: getAllByProdutoId
+      summary: Lista todas as entradas que contêm um produto específico pelo ID do produto.
+      operationId: getAllEntradasByProdutoId
+      security:
+        - bearerAuth: []
       parameters:
-        - name: produtoId
-          in: query
-          required: true
+        - in: query
+          name: produtoId
           schema:
             type: integer
             format: int64
-          description: ID do Produto para filtrar as Entradas.
-      security:
-        - bearerAuth: []
+          required: true
+          description: ID do Produto.
       responses:
         '200':
-          description: Lista de Entradas contendo o Produto.
+          description: Lista de entradas encontradas.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/EntradaDTO'
+                  $ref: '#/components/schemas/EntradaReturnDTO'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Nenhuma entrada encontrada para o produto especificado.
 
 components:
   schemas:
     EntradaProdutoItemDTO:
       type: object
-      description: DTO para a lista de produtos (itens) dentro da Entrada.
       properties:
         produtoId:
           type: integer
           format: int64
-          description: ID do Produto.
           example: 101
         quantidade:
           type: integer
-          description: Quantidade do produto neste item da entrada.
           example: 50
       required:
         - produtoId
@@ -219,43 +219,46 @@ components:
 
     EntradaDTO:
       type: object
-      description: DTO usado para criar, atualizar e visualizar Entradas.
       properties:
-        id:
-          type: integer
-          format: int64
-          description: ID da Entrada (apenas para leitura/retorno).
-          readOnly: true
         dataEntrada:
           type: string
           format: date-time
-          description: Data e hora da entrada no estoque.
           example: "2025-11-10T10:00:00Z"
         observacao:
           type: string
           nullable: true
-          description: Observações sobre a nota de entrada.
-          example: "Lote com desconto"
+          example: "Lote A"
         fornecedorId:
           type: integer
           format: int64
-          description: ID do Fornecedor relacionado (o código Java usa Long, então format int64).
           nullable: true
-          example: 2
-        userId:
-          type: string
-          format: uuid
-          description: ID do Usuário que registrou a entrada.
-          example: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
-        produtos: # NOVO: Lista de produtos para a relação Many-to-Many
+          example: 1
+        preco:
+          type: integer
+          format: int64
+          nullable: true
+          example: 12000
+        produtos:
           type: array
-          description: Lista de produtos incluídos nesta entrada.
           items:
             $ref: '#/components/schemas/EntradaProdutoItemDTO'
       required:
         - dataEntrada
-        - userId
-        - produtos # Requer a lista de produtos
+        - produtos
+
+    EntradaReturnDTO:
+      allOf:
+        - $ref: '#/components/schemas/EntradaDTO'
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+              example: 1
+            userId:
+              type: string
+              format: uuid
+              example: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
 
     Error:
       type: object
@@ -293,6 +296,8 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
     Unauthorized:
-      description: Não autorizado (Token JWT ausente ou inválido).
-    Forbidden:
-      description: Acesso negado (Token JWT válido, mas sem a permissão/role necessária).
+      description: Não autorizado (Token JWT inválido ou faltando).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

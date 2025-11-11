@@ -40,6 +40,7 @@ public class EntradaServiceImpl implements EntradaService {
                 entrada.getDataEntrada(),
                 entrada.getObservacao(),
                 entrada.getFornecedor() != null ? entrada.getFornecedor().getId() : null,
+                entrada.getPreco(),
                 entrada.getUser().getId(),
                 entrada.getId()
         );
@@ -79,6 +80,7 @@ public class EntradaServiceImpl implements EntradaService {
                 entradaDTO.getDataEntrada(),
                 entradaDTO.getObservacao(),
                 fornecedor,
+                entradaDTO.getPreco(),
                 user
         );
 
@@ -144,6 +146,7 @@ public class EntradaServiceImpl implements EntradaService {
             entrada.setDataEntrada(entradaDTO.getDataEntrada());
             entrada.setObservacao(entradaDTO.getObservacao());
             entrada.setFornecedor(supplier);
+            entrada.setPreco(entradaDTO.getPreco());
 
             entradaRepository.save(entrada);
             return true;
