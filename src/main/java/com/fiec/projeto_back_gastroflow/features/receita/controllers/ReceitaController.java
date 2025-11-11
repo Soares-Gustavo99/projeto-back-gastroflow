@@ -39,7 +39,7 @@ public class ReceitaController {
     }
 
     // Listar todas as receitas
-    @GetMapping
+    @GetMapping("/listar")
     @PreAuthorize("hasAnyRole('ADMIN','STANDARD', 'GUEST')")
     public ResponseEntity<List<ReceitaDTO>> findAll() {
         return ResponseEntity.ok(receitaService.findAll());

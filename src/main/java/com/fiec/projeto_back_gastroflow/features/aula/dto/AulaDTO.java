@@ -16,6 +16,8 @@ public class AulaDTO {
 
     private Long id;
 
+    private String nome;
+
     private String descricao;
 
     private Date data;
