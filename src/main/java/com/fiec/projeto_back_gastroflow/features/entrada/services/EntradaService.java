@@ -8,7 +8,7 @@ import java.util.UUID;
 // Interface seguindo o padrão de ProdutoService
 public interface EntradaService {
 
-    void createEntrada(EntradaDTO entradaDTO);
+    void createEntrada(EntradaDTO entradaDTO, UUID userId);
 
     EntradaDTO getById(Long id); // <--- ID UUID
 

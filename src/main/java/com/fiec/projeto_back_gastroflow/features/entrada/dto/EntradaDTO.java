@@ -18,7 +18,6 @@ public class EntradaDTO {
     private Date dataEntrada;
     private String observacao;
     private Long fornecedorId; // ID do Fornecedor é UUID
-    private UUID userId;// ID do Usuário é UUID
 
     private List<EntradaProdutoItemDTO> produtos;
 
@@ -30,7 +29,6 @@ public class EntradaDTO {
         this.dataEntrada = dataEntrada;
         this.observacao = observacao;
         this.fornecedorId = fornecedorId;
-        this.userId = userId;
         this.id = id;
     }
 

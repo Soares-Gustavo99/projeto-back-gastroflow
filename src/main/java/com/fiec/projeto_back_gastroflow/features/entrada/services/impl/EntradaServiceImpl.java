@@ -67,9 +67,10 @@ public class EntradaServiceImpl implements EntradaService {
     // --- Métodos CRUD ---
 
     @Override
-    public void createEntrada(EntradaDTO entradaDTO) {
+    public void createEntrada(EntradaDTO entradaDTO, UUID userId) {
 
-        User user = findUserById(entradaDTO.getUserId());
+        User user = findUserById(userId);
+
         Supplier fornecedor = entradaDTO.getFornecedorId() != null ?
                 findSupplierById(entradaDTO.getFornecedorId()) :
                 null;
@@ -135,7 +136,6 @@ public class EntradaServiceImpl implements EntradaService {
     public boolean updateEntradaById(Long id, EntradaDTO entradaDTO) {
         return entradaRepository.findById(id).map(entrada -> {
 
-            var user = findUserById(entradaDTO.getUserId());
             var supplier = entradaDTO.getFornecedorId() != null ?
                     findSupplierById(entradaDTO.getFornecedorId()) :
                     null;
@@ -144,7 +144,6 @@ public class EntradaServiceImpl implements EntradaService {
             entrada.setDataEntrada(entradaDTO.getDataEntrada());
             entrada.setObservacao(entradaDTO.getObservacao());
             entrada.setFornecedor(supplier);
-            entrada.setUser(user);
 
             entradaRepository.save(entrada);
             return true;
