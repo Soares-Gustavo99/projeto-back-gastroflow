@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -66,6 +67,15 @@ public class ProdutoController {
     @GetMapping("/filters/all")
     public List<ProdutoDTO> getProductById(ProdutoSearch productSearch){
         return produtoService.findAllWithQueries(productSearch);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/{id}/photo") // Usa o ID do produto no path
+    @PreAuthorize("hasAnyRole('ADMIN','STANDARD')")
+    public void insertProdutoImage(@PathVariable Long id,
+                                   @RequestParam("image") MultipartFile image){
+
+        produtoService.insertProdutoImage(id, image);
     }
 }
 

@@ -6,11 +6,14 @@ import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoSearch;
 import com.fiec.projeto_back_gastroflow.features.products.models.Produto;
 import com.fiec.projeto_back_gastroflow.features.products.repositories.ProdutoRepository;
 import com.fiec.projeto_back_gastroflow.features.products.services.ProdutoService;
+import com.fiec.projeto_back_gastroflow.utils.ImageUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @AllArgsConstructor
@@ -28,6 +31,7 @@ public class ProdutoServiceImpl implements ProdutoService {
                 produtoDTO.getQuantidadeEstoque(),
                 produtoDTO.getUnidadeMedida(),
                 produtoDTO.getValidade(),
+                produtoDTO.getPicture(),
                 null // a lista de receitas será setada pelo ReceitaService
         );
 
@@ -43,9 +47,28 @@ public class ProdutoServiceImpl implements ProdutoService {
                         produto.getCategoria(),
                         produto.getQuantidadeEstoque(),
                         produto.getUnidadeMedida(),
-                        produto.getValidade()
+                        produto.getValidade(),
+                        produto.getPicture()
                 )
         ).orElse(null);
+    }
+
+    public Produto findProdutoById(Long id) {
+        return produtoRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Produto não encontrado com ID: " + id));
+    }
+
+    public void insertProdutoImage(Long id, MultipartFile image){
+
+        // 1. Encontrar o produto (Modelo)
+        Produto produto = findProdutoById(id);
+
+        // 2. Salvar a imagem e obter o nome do arquivo
+        String imageName = ImageUtils.saveImage(image); // Assumindo ImageUtils já foi copiado/implementado
+
+        // 3. Associar e salvar o modelo
+        produto.setPicture(imageName);
+        produtoRepository.save(produto);
     }
 
     public List<ProdutoDTO> getAllByNome(String nome) {
@@ -56,7 +79,8 @@ public class ProdutoServiceImpl implements ProdutoService {
                         produto.getCategoria(),
                         produto.getQuantidadeEstoque(),
                         produto.getUnidadeMedida(),
-                        produto.getValidade()
+                        produto.getValidade(),
+                        produto.getPicture()
                 ))
                 .toList();
     }
@@ -70,7 +94,8 @@ public class ProdutoServiceImpl implements ProdutoService {
                         produto.getCategoria(),
                         produto.getQuantidadeEstoque(),
                         produto.getUnidadeMedida(),
-                        produto.getValidade()
+                        produto.getValidade(),
+                        produto.getPicture()
                 ))
                 .toList();
     }

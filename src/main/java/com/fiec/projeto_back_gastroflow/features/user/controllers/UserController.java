@@ -39,15 +39,15 @@ public class UserController {
         return userService.getMe(user);
     }
 
-    //COLOCAR ISSO DE VOLTA ASSIM QUE RESOLVER O FIREBASE
-//    @PutMapping("/photo")
-//    public void insertUserImage(@RequestParam("image") MultipartFile image, Authentication authentication){
-//        User user = (User) authentication.getPrincipal();
-//        String imageName = ImageUtils.saveImage(image);
-//        user.setPicture(imageName);
-//        user.setState(RegisterState.IMAGE_CREATED);
-//        userService.save(user);
-//    }
+//    COLOCAR ISSO DE VOLTA ASSIM QUE RESOLVER O FIREBASE
+    @PutMapping("/photo")
+    public void insertUserImage(@RequestParam("image") MultipartFile image, Authentication authentication){
+        User user = (User) authentication.getPrincipal();
+        String imageName = ImageUtils.saveImage(image);
+        user.setPicture(imageName);
+        user.setState(RegisterState.IMAGE_CREATED);
+        userService.save(user);
+    }
 
 
 
