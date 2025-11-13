@@ -13,4 +13,6 @@ public class EntradaProdutoItemDTO {
     private Long produtoId;
 
     private Integer quantidade;
+
+    private Long preco;
 }

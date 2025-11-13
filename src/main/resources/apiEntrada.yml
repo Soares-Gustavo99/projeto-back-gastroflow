@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: GastroFlow API - Módulo Entradas
-  description: API para gerenciamento de Entradas/Recebimento de Estoque com suporte a múltiplos produtos por entrada (EntradaProduto).
+  description: API para gerenciamento de Entradas/Recebimento de Estoque com suporte a múltiplos produtos (e seus preços) por entrada.
   version: 1.0.0
 
 servers:
@@ -23,12 +23,12 @@ paths:
     post:
       tags:
         - Entradas
-      summary: Cria uma nova entrada de estoque, podendo conter múltiplos produtos.
+      summary: Cria uma nova entrada de estoque, com preços definidos por item.
       operationId: createEntrada
       security:
         - bearerAuth: []
       requestBody:
-        description: Dados da Entrada a ser criada, incluindo a lista de produtos.
+        description: Dados da Entrada a ser criada, incluindo a lista de produtos e seus respectivos preços.
         required: true
         content:
           application/json:
@@ -38,12 +38,14 @@ paths:
               dataEntrada: "2025-11-10T10:00:00Z"
               observacao: "Nota fiscal 9876. Lote especial de cervejas."
               fornecedorId: 1
-              preco: 12000
+              # 'preco' foi removido daqui
               produtos:
                 - produtoId: 101
                   quantidade: 50
+                  preco: 25000 # Preço (em centavos) do item 1
                 - produtoId: 102
                   quantidade: 10
+                  preco: 10000 # Preço (em centavos) do item 2
       responses:
         '201':
           description: Entrada criada com sucesso.
@@ -53,15 +55,12 @@ paths:
           $ref: '#/components/responses/Unauthorized'
 
     # ----------------------------------------------------
-    # PATCH /entradas - Atualizar Entrada
+    # PATCH /entradas - Atualizar Entrada e seus Itens
     # ----------------------------------------------------
     patch:
       tags:
         - Entradas
-      summary: Atualiza uma entrada de estoque existente (data, observação, fornecedor, preço).
-      description: |
-        **Nota Importante:** Este endpoint só atualiza os campos principais da `Entrada`. 
-        A atualização de produtos requer outro endpoint específico.
+      summary: Atualiza uma entrada de estoque e/ou os preços/quantidades de seus itens.
       operationId: updateEntradaById
       security:
         - bearerAuth: []
@@ -74,7 +73,7 @@ paths:
           required: true
           description: ID da Entrada a ser atualizada.
       requestBody:
-        description: Dados da Entrada a serem atualizados.
+        description: Dados da Entrada a serem atualizados. A lista 'produtos' substitui a lista existente.
         required: true
         content:
           application/json:
@@ -82,40 +81,22 @@ paths:
               $ref: '#/components/schemas/EntradaDTO'
             example:
               dataEntrada: "2025-11-10T11:30:00Z"
-              observacao: "Observação corrigida. Nota fiscal 9876."
+              observacao: "Observação corrigida."
               fornecedorId: 1
-              preco: 12500
+              # 'preco' foi removido daqui
+              produtos:
+                - produtoId: 101
+                  quantidade: 55 # Quantidade atualizada
+                  preco: 26000 # Preço atualizado
+                - produtoId: 103 # Novo produto adicionado
+                  quantidade: 20
+                  preco: 5000
+                # O produto 102 foi removido (se a lógica for de substituição)
       responses:
         '200':
           description: Entrada atualizada com sucesso.
         '400':
           $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-    # ----------------------------------------------------
-    # DELETE /entradas - Deletar Entrada
-    # ----------------------------------------------------
-    delete:
-      tags:
-        - Entradas
-      summary: Deleta uma entrada de estoque pelo ID.
-      operationId: deleteEntradaById
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: query
-          name: id
-          schema:
-            type: integer
-            format: int64
-          required: true
-          description: ID da Entrada a ser deletada.
-      responses:
-        '204':
-          description: Entrada deletada com sucesso (No Content).
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
@@ -151,7 +132,36 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+    # ----------------------------------------------------
+    # DELETE /entradas?id={id} - Deletar Entrada
+    # ----------------------------------------------------
+    delete:
+      tags:
+        - Entradas
+      summary: Deleta uma entrada de estoque pelo ID.
+      operationId: deleteEntradaById
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: ID da Entrada a ser deletada.
+      responses:
+        '204':
+          description: Entrada deletada com sucesso (No Content).
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   /entradas/todas:
+    # ----------------------------------------------------
+    # GET /entradas/todas - Listar todas as Entradas
+    # ----------------------------------------------------
     get:
       tags:
         - Entradas
@@ -172,6 +182,9 @@ paths:
           $ref: '#/components/responses/Unauthorized'
 
   /entradas/produto:
+    # ----------------------------------------------------
+    # GET /entradas/produto?produtoId={produtoId} - Buscar Entradas por ID do Produto
+    # ----------------------------------------------------
     get:
       tags:
         - Entradas
@@ -203,50 +216,67 @@ paths:
 
 components:
   schemas:
+    # ----------------------------------------------------
+    # CORREÇÃO: Preço adicionado aqui
+    # ----------------------------------------------------
     EntradaProdutoItemDTO:
       type: object
       properties:
         produtoId:
           type: integer
           format: int64
+          description: ID do Produto relacionado.
           example: 101
         quantidade:
           type: integer
+          description: Quantidade de produto que entrou no estoque.
           example: 50
+        preco:
+          type: integer
+          format: int64
+          description: "Preço unitário ou total do item (em centavos)."
+          example: 25000
       required:
         - produtoId
         - quantidade
+        - preco
 
-    EntradaDTO:
+    # ----------------------------------------------------
+    # CORREÇÃO: Preço removido daqui
+    # ----------------------------------------------------
+    EntradaDTO: # DTO usado para criação (POST) e atualização (PATCH)
       type: object
       properties:
         dataEntrada:
           type: string
           format: date-time
+          description: Data e hora da entrada do produto.
           example: "2025-11-10T10:00:00Z"
         observacao:
           type: string
           nullable: true
+          description: Observações sobre a entrada.
           example: "Lote A"
         fornecedorId:
           type: integer
           format: int64
           nullable: true
+          description: ID do Fornecedor relacionado.
           example: 1
-        preco:
-          type: integer
-          format: int64
-          nullable: true
-          example: 12000
+        # 'preco' (Long) foi removido daqui
         produtos:
           type: array
+          description: Lista de produtos incluídos nesta entrada.
           items:
             $ref: '#/components/schemas/EntradaProdutoItemDTO'
       required:
         - dataEntrada
         - produtos
 
-    EntradaReturnDTO:
+    # ----------------------------------------------------
+    # CORREÇÃO: Preço removido automaticamente (herança)
+    # ----------------------------------------------------
+    EntradaReturnDTO: # DTO usado para retorno (GET)
       allOf:
         - $ref: '#/components/schemas/EntradaDTO'
         - type: object
@@ -254,11 +284,15 @@ components:
             id:
               type: integer
               format: int64
+              readOnly: true
               example: 1
             userId:
               type: string
               format: uuid
+              readOnly: true
+              description: ID do Usuário que registrou a entrada (obtido do token).
               example: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+            # O campo 'produtos' (herdado) agora conterá os preços individuais
 
     Error:
       type: object

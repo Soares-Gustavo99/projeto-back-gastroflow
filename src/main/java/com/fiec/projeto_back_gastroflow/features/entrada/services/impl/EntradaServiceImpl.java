@@ -1,6 +1,7 @@
 package com.fiec.projeto_back_gastroflow.features.entrada.services.impl;
 
 import com.fiec.projeto_back_gastroflow.features.entrada.dto.EntradaDTO;
+import com.fiec.projeto_back_gastroflow.features.entrada.dto.EntradaProdutoItemDTO;
 import com.fiec.projeto_back_gastroflow.features.entrada.models.Entrada;
 import com.fiec.projeto_back_gastroflow.features.entrada.repositories.EntradaRepository;
 import com.fiec.projeto_back_gastroflow.features.entrada.services.EntradaService;
@@ -35,14 +36,27 @@ public class EntradaServiceImpl implements EntradaService {
     // --- Mappers & Helpers ---
 
     private EntradaDTO toDTO(Entrada entrada) {
+
+        var produtosDTO = entrada.getProdutos() != null
+                ? entrada.getProdutos().stream()
+                .map(ep -> new EntradaProdutoItemDTO(
+                        ep.getProduto().getId(),
+                        ep.getQuantidade(),
+                        ep.getPreco()
+                ))
+                .collect(Collectors.toList())
+                : null;
+
+
+
         // Converte Model para DTO, extraindo IDs de chave estrangeira
         return new EntradaDTO(
                 entrada.getDataEntrada(),
                 entrada.getObservacao(),
                 entrada.getFornecedor() != null ? entrada.getFornecedor().getId() : null,
-                entrada.getPreco(),
                 entrada.getUser().getId(),
-                entrada.getId()
+                entrada.getId(),
+                produtosDTO
         );
     }
 
@@ -80,7 +94,6 @@ public class EntradaServiceImpl implements EntradaService {
                 entradaDTO.getDataEntrada(),
                 entradaDTO.getObservacao(),
                 fornecedor,
-                entradaDTO.getPreco(),
                 user
         );
 
@@ -97,6 +110,7 @@ public class EntradaServiceImpl implements EntradaService {
                 var entradaProduto = new EntradaProduto(
                         entradaProdutoId,
                         itemDTO.getQuantidade(),
+                        itemDTO.getPreco(),
                         entrada, // Associa a Entrada (ainda não salva)
                         produto
                 );
@@ -138,6 +152,7 @@ public class EntradaServiceImpl implements EntradaService {
     public boolean updateEntradaById(Long id, EntradaDTO entradaDTO) {
         return entradaRepository.findById(id).map(entrada -> {
 
+
             var supplier = entradaDTO.getFornecedorId() != null ?
                     findSupplierById(entradaDTO.getFornecedorId()) :
                     null;
@@ -146,7 +161,39 @@ public class EntradaServiceImpl implements EntradaService {
             entrada.setDataEntrada(entradaDTO.getDataEntrada());
             entrada.setObservacao(entradaDTO.getObservacao());
             entrada.setFornecedor(supplier);
-            entrada.setPreco(entradaDTO.getPreco());
+
+            if (entradaDTO.getProdutos() != null) {
+                for (var itemDTO : entradaDTO.getProdutos()) {
+
+                    Produto produto = findProdutoById(itemDTO.getProdutoId());
+
+                    EntradaProduto entradaProdutoExistente = entrada.getProdutos().stream()
+                            .filter(ep -> ep.getProduto().getId().equals(produto.getId()))
+                            .findFirst()
+                            .orElse(null);
+
+
+                    if (entradaProdutoExistente != null) {
+                        // Atualiza quantidade e preço
+                        entradaProdutoExistente.setQuantidade(itemDTO.getQuantidade());
+                        entradaProdutoExistente.setPreco(itemDTO.getPreco());
+                    } else {
+                        // Se não existir, cria novo
+                        var entradaProdutoId = new EntradaProdutoId(entrada.getId(), produto.getId());
+
+                        var novoEntradaProduto = new EntradaProduto(
+                                entradaProdutoId,
+                                itemDTO.getQuantidade(),
+                                itemDTO.getPreco(),
+                                entrada,
+                                produto
+                        );
+
+                        entrada.getProdutos().add(novoEntradaProduto);
+                    }
+                }
+            }
+
 
             entradaRepository.save(entrada);
             return true;

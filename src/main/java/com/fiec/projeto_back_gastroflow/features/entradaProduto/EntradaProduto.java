@@ -21,6 +21,8 @@ public class EntradaProduto {
 
     private Integer quantidade;
 
+    private Long preco;
+
     @ManyToOne(fetch = FetchType.LAZY)
 
     @MapsId("entradaId")
@@ -31,6 +33,5 @@ public class EntradaProduto {
     @MapsId("produtoId") // Mapeia o atributo 'produtoId' da chave composta
     @JoinColumn(name = "fk_produto_id")
     private Produto produto;
-
 
 }
