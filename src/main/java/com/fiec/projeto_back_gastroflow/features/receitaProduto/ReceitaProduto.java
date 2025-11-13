@@ -32,8 +32,6 @@ public class ReceitaProduto {
 
     // RELAÇÃO MANY-TO-ONE: Muitos ReceitaProduto para um Produto
     @ManyToOne(fetch = FetchType.LAZY)
-
-    // Indica a coluna de chave estrangeira no banco (fk_produto_id)
     @MapsId("produtoId") // Mapeia o atributo 'produtoId' da chave composta
     @JoinColumn(name = "fk_produto_id")
     private Produto produto;

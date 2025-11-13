@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -15,14 +16,21 @@ public class EntradaDTO {
     // O DTO deve conter os campos para recebimento de dados
     // E os IDs para as chaves estrangeiras
     private Date dataEntrada;
-    private Integer quantidade;
     private String observacao;
-    private Long produtoId; // ID do Produto é Long
     private Long fornecedorId; // ID do Fornecedor é UUID
-    private UUID userId; // ID do Usuário é UUID
+
+    private List<EntradaProdutoItemDTO> produtos;
 
     // O ID da própria entrada pode ser incluído se o DTO for usado para retorno
     private Long id;
 
+
+    public EntradaDTO(Date dataEntrada, String observacao, Long fornecedorId, UUID userId, Long id, List<EntradaProdutoItemDTO> produtos) {
+        this.dataEntrada = dataEntrada;
+        this.observacao = observacao;
+        this.fornecedorId = fornecedorId;
+        this.id = id;
+        this.produtos = produtos;
+    }
 
 }

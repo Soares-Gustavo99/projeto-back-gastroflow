@@ -31,7 +31,8 @@ public class ProdutoServiceImpl implements ProdutoService {
                 produtoDTO.getQuantidadeEstoque(),
                 produtoDTO.getUnidadeMedida(),
                 produtoDTO.getValidade(),
-                produtoDTO.getPicture(),
+                null,
+                null,
                 null // a lista de receitas será setada pelo ReceitaService
         );
 
