@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @Entity
 @AllArgsConstructor
@@ -20,7 +22,7 @@ public class EntradaProduto {
 
     private Integer quantidade;
 
-    private Long preco;
+    private BigDecimal preco;
 
     @ManyToOne(fetch = FetchType.LAZY)
 
