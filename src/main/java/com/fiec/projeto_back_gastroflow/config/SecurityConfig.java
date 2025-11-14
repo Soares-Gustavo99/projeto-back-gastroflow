@@ -42,14 +42,17 @@ public class SecurityConfig {
                 })
                 .authenticationProvider(authenticationProvider)
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/images/**",
+                        .requestMatchers(
+                                "/images/**",
+                                "/v3/api-docs/**",
                                 "/v1/api/auth/**",
-                                "v1/api/users/admin/**",
-                                "v1/api/users/standard/**",
-                                "v1/api/users/guest/**",
+                                "/v1/api/users/admin/**",
+                                "/v1/api/users/standard/**",
+                                "/v1/api/users/guest/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/actuator/health", "/v1/api/notifications/sendToUser"
+                                "/actuator/health",
+                                "/v1/api/notifications/sendToUser"
                         ).permitAll()
                         .anyRequest().authenticated()
                 ).sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
