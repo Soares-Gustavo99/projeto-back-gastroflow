@@ -2,6 +2,7 @@ package com.fiec.projeto_back_gastroflow.features.entrada.controllers;
 
 import com.fiec.projeto_back_gastroflow.features.entrada.dto.EntradaDTO;
 import com.fiec.projeto_back_gastroflow.features.entrada.services.impl.EntradaServiceImpl;
+import com.fiec.projeto_back_gastroflow.features.user.models.User;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,6 +14,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
+
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,8 +39,10 @@ public class EntradaController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(consumes = APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyRole('ADMIN','STANDARD')") // Padrão ProdutoController
-    public void createEntrada(@RequestBody EntradaDTO entradaDTO) {
-        entradaService.createEntrada(entradaDTO);
+    public void createEntrada(@RequestBody EntradaDTO entradaDTO, Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        UUID userId = user.getId();
+        entradaService.createEntrada(entradaDTO, userId);
     }
 
     // Buscar Entrada por ID (UUID)

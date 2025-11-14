@@ -14,6 +14,8 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ReceitaDTO {
 
+    private Long id;
+
     private String nome;
 
     private String descricao;

@@ -1,18 +1,24 @@
 package com.fiec.projeto_back_gastroflow.features.aula.services.impl;
 
+import com.fiec.projeto_back_gastroflow.exceptions.EstoqueInsuficienteException;
 import com.fiec.projeto_back_gastroflow.features.aula.dto.AulaDTO;
 import com.fiec.projeto_back_gastroflow.features.aula.models.Aula;
 import com.fiec.projeto_back_gastroflow.features.aula.repositories.AulaRepository;
 import com.fiec.projeto_back_gastroflow.features.aula.services.AulaService;
+import com.fiec.projeto_back_gastroflow.features.products.models.Produto;
+import com.fiec.projeto_back_gastroflow.features.products.repositories.ProdutoRepository;
 import com.fiec.projeto_back_gastroflow.features.receita.models.Receita;
 import com.fiec.projeto_back_gastroflow.features.receita.repositories.ReceitaRepository;
+import com.fiec.projeto_back_gastroflow.features.receitaProduto.ReceitaProduto;
 import com.fiec.projeto_back_gastroflow.features.user.models.User;
 import com.fiec.projeto_back_gastroflow.features.user.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -22,11 +28,69 @@ public class AulaServiceImpl implements AulaService {
     private final AulaRepository aulaRepository;
     private final ReceitaRepository receitaRepository; // Para N:N com Receita
     private final UserRepository userRepository; // Para ManyToOne com User
+    private final ProdutoRepository produtoRepository;
 
     @Transactional
     @Override
     public void createAula(AulaDTO aulaDTO, UUID usuarioId) {
+        // Passo 1: Obter as receitas da Aula
+        List<Receita> receitas = null;
+        if (aulaDTO.getReceitaIds() != null && !aulaDTO.getReceitaIds().isEmpty()) {
+            receitas = receitaRepository.findAllById(aulaDTO.getReceitaIds());
+        }
+
+        // Passo 2: Consolidar a Quantidade Total Requerida por Produto
+        Map<Long, Integer> produtosNecessarios = new HashMap<>();
+
+        if (receitas != null) {
+            for (Receita receita : receitas) {
+                for (ReceitaProduto item : receita.getProdutos()) {
+                    Long produtoId = item.getProduto().getId();
+                    Integer quantidadeRequeridaNaReceita = item.getQuantidade();
+
+                    produtosNecessarios.merge(
+                            produtoId,
+                            quantidadeRequeridaNaReceita,
+                            Integer::sum
+                    );
+                }
+            }
+        }
+
+        // Passo 3: Verificar Estoque e Realizar a Baixa
+        for (Map.Entry<Long, Integer> entry : produtosNecessarios.entrySet()) {
+            Long produtoId = entry.getKey();
+            Integer quantidadeRequerida = entry.getValue();
+
+            // Buscar o produto.
+            Produto produto = produtoRepository.findById(produtoId)
+                    .orElseThrow(() -> new RuntimeException("Produto (ID: " + produtoId + ") não encontrado no sistema."));
+
+            // Checagem de Estoque
+            if (produto.getQuantidadeEstoque() < quantidadeRequerida) {
+                // Lançar exceção para forçar o ROLLBACK de TUDO (incluindo a aula e as receitas).
+                throw new EstoqueInsuficienteException(
+                        "Estoque insuficiente para o produto: " + produto.getNome() +
+                                ". Estoque atual: " + produto.getQuantidadeEstoque() +
+                                ", Requerido para a aula: " + quantidadeRequerida
+                );
+            }
+
+            // **AÇÃO OBRIGATÓRIA: ATUALIZAÇÃO/BAIXA DE ESTOQUE**
+            // O produto é uma entidade gerenciada. A alteração será persistida no COMMIT.
+            Integer novoEstoque = produto.getQuantidadeEstoque() - quantidadeRequerida;
+            produto.setQuantidadeEstoque(novoEstoque);
+
+            // Chamamos save explicitamente para garantir que a alteração seja marcada para persistência.
+            // Em muitos casos, se a entidade for gerenciada, a chamada a save é opcional,
+            // mas é uma boa prática para clareza em transações.
+            produtoRepository.save(produto);
+        }
+
+
+        // Passo 4: Persistência da Aula (Só ocorre se o estoque foi suficiente e a baixa foi registrada)
         Aula aula = new Aula();
+        aula.setNome(aulaDTO.getNome());
         aula.setDescricao(aulaDTO.getDescricao());
         aula.setData(aulaDTO.getData());
         aula.setInstrutor(aulaDTO.getInstrutor());
@@ -42,12 +106,14 @@ public class AulaServiceImpl implements AulaService {
         aula.setUser(user);
 
         // Relacionar receitas (N:N)
-        if (aulaDTO.getReceitaIds() != null) {
-            List<Receita> receitas = receitaRepository.findAllById(aulaDTO.getReceitaIds());
+        if (receitas != null) {
             aula.setReceitas(receitas);
         }
 
         aulaRepository.save(aula);
+
+        // FIM DA TRANSAÇÃO: Se chegou aqui, a Aula é salva, e o estoque dos Produtos é atualizado (COMMIT).
+        // Se ocorrer uma exceção (mesmo que após o save do Produto), ambas as operações serão revertidas (ROLLBACK).
     }
 
     @Override

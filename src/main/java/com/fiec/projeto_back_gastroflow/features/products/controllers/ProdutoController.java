@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -102,4 +103,19 @@ public class ProdutoController {
     public void deleteProdutoById(@Parameter(description = "ID do Produto a ser deletado.") @RequestParam Long id){
         produtoService.deleteProdutoById(id);
     }
+
+    @GetMapping("/filters/all")
+    public List<ProdutoDTO> getProductById(ProdutoSearch productSearch){
+        return produtoService.findAllWithQueries(productSearch);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/{id}/photo") // Usa o ID do produto no path
+    @PreAuthorize("hasAnyRole('ADMIN','STANDARD')")
+    public void insertProdutoImage(@PathVariable Long id,
+                                   @RequestParam("image") MultipartFile image){
+
+        produtoService.insertProdutoImage(id, image);
+    }
 }
+

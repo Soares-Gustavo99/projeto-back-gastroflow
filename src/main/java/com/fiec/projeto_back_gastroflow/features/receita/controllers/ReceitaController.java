@@ -63,7 +63,7 @@ public class ReceitaController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de receitas retornada com sucesso.")
     })
-    @GetMapping
+    @GetMapping("/listar")
     @PreAuthorize("hasAnyRole('ADMIN','STANDARD', 'GUEST')")
     public ResponseEntity<List<ReceitaDTO>> findAll() {
         return ResponseEntity.ok(receitaService.findAll());

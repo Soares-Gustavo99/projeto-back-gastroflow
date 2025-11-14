@@ -28,5 +28,5 @@ public class ProdutoDTO {
 
     private Date validade;
 
-
+    private String picture;
 }
