@@ -1,5 +1,6 @@
 package com.fiec.projeto_back_gastroflow.features.receita.models;
 
+import com.fiec.projeto_back_gastroflow.features.aulaReceitas.AulaReceita;
 import com.fiec.projeto_back_gastroflow.features.products.models.Produto;
 import com.fiec.projeto_back_gastroflow.features.receitaProduto.ReceitaProduto;
 import com.fiec.projeto_back_gastroflow.features.user.models.User;
@@ -48,4 +49,10 @@ public class Receita {
     // Nova relação One-to-Many com a entidade de junção ReceitaProduto
     @OneToMany(mappedBy = "receita", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReceitaProduto> produtos = new ArrayList<>(); // Lista de ReceitaProduto
+
+    // NOVO: Relacionamento com a entidade de junção AulaReceita
+    @OneToMany(mappedBy = "receita", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AulaReceita> aulas = new ArrayList<>(); // Lista de AulaReceita
+
+
 }

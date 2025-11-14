@@ -1,9 +1,11 @@
 package com.fiec.projeto_back_gastroflow.features.aula.models;
 
+import com.fiec.projeto_back_gastroflow.features.aulaReceitas.AulaReceita;
 import com.fiec.projeto_back_gastroflow.features.receita.models.Receita;
 import com.fiec.projeto_back_gastroflow.features.user.models.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -15,6 +17,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Aula {
 
     @Id
@@ -41,18 +44,11 @@ public class Aula {
 
 
 
-    @ManyToMany
-    @JoinTable(
-            name = "aula_receita",
-            joinColumns = @JoinColumn(name = "aula_id"),
-            inverseJoinColumns = @JoinColumn(name = "receita_id")
-    )
-    //IMPORTAR PRODUTO AQUI
-    private List<Receita> receitas = new ArrayList<>();
+    @OneToMany(mappedBy = "aula", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AulaReceita> receitas = new ArrayList<>(); // Agora é uma lista de AulaReceita
 
     @ManyToOne
     @JoinColumn(name = "fk_usuario_id")
     private User user;
-    //IMPORTAR PRODUTO AQUI
 
 }

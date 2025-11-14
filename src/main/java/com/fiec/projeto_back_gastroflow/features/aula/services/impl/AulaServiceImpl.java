@@ -5,6 +5,9 @@ import com.fiec.projeto_back_gastroflow.features.aula.dto.AulaDTO;
 import com.fiec.projeto_back_gastroflow.features.aula.models.Aula;
 import com.fiec.projeto_back_gastroflow.features.aula.repositories.AulaRepository;
 import com.fiec.projeto_back_gastroflow.features.aula.services.AulaService;
+import com.fiec.projeto_back_gastroflow.features.aulaReceitas.AulaReceita;
+import com.fiec.projeto_back_gastroflow.features.aulaReceitas.AulaReceitaItemDTO;
+import com.fiec.projeto_back_gastroflow.features.aulaReceitas.repositories.AulaReceitaRepository;
 import com.fiec.projeto_back_gastroflow.features.products.models.Produto;
 import com.fiec.projeto_back_gastroflow.features.products.repositories.ProdutoRepository;
 import com.fiec.projeto_back_gastroflow.features.receita.models.Receita;
@@ -15,11 +18,9 @@ import com.fiec.projeto_back_gastroflow.features.user.repositories.UserRepositor
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.fiec.projeto_back_gastroflow.exceptions.ResourceNotFoundException;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -29,91 +30,91 @@ public class AulaServiceImpl implements AulaService {
     private final ReceitaRepository receitaRepository; // Para N:N com Receita
     private final UserRepository userRepository; // Para ManyToOne com User
     private final ProdutoRepository produtoRepository;
+    private final AulaReceitaRepository aulaReceitaRepository;
 
     @Transactional
+    public Aula createAula(AulaDTO aulaDTO) {
+
+        // 1. Mapeamento Manual do DTO para a Entidade Aula (usando @Builder)
+
+        // 1a. Busca o Usuário (necessário para a relação ManyToOne)
+        User user = userRepository.findById(aulaDTO.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+
+        // 1b. Cria a entidade Aula usando o Builder
+        Aula aula = Aula.builder()
+                .nome(aulaDTO.getNome())
+                .descricao(aulaDTO.getDescricao())
+                .data(aulaDTO.getData())
+                .instrutor(aulaDTO.getInstrutor())
+                .materia(aulaDTO.getMateria())
+                .ano(aulaDTO.getAno())
+                .semestre(aulaDTO.getSemestre())
+                .modulo(aulaDTO.getModulo())
+                .periodo(aulaDTO.getPeriodo())
+                .user(user) // Define o usuário
+                .receitas(new ArrayList<>()) // Inicializa a lista de junção (será preenchida no loop)
+                .build();
+
+        aulaRepository.save(aula); // Persiste a Aula base para obter o ID
+
+        // Estrutura para rastrear o total de produtos necessários (para o transactional)
+        Map<Long, Integer> produtosParaRetirar = new HashMap<>();
+
+        // 2. Itera sobre as Receitas do DTO e calcula o estoque
+        for (AulaReceitaItemDTO receitaItemDTO : aulaDTO.getReceitas()) {
+            Receita receita = receitaRepository.findById(receitaItemDTO.getReceitaId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Receita não encontrada"));
+
+            // 2b. Cria e associa AulaReceita
+            AulaReceita aulaReceita = new AulaReceita();
+            aulaReceita.setAula(aula);
+            aulaReceita.setReceita(receita);
+            aulaReceita.setQuantidade(receitaItemDTO.getQuantidade());
+            aulaReceitaRepository.save(aulaReceita); // Salva a entidade de junção
+
+            // Adiciona à lista da Aula
+            aula.getReceitas().add(aulaReceita);
+
+            // 3. Itera sobre os Produtos de CADA Receita
+            for (ReceitaProduto rp : receita.getProdutos()) {
+                Produto produto = rp.getProduto();
+
+                // 3. Cálculo Transacional: Quantidade do Produto na Receita * Quantidade da Receita na Aula
+                int quantidadeReceitaNaAula = receitaItemDTO.getQuantidade();
+                int quantidadeProdutoNaReceita = rp.getQuantidade();
+
+                int totalNecessario = quantidadeProdutoNaReceita * quantidadeReceitaNaAula;
+
+                // Agrupa a quantidade total necessária por ID de Produto
+                produtosParaRetirar.merge(produto.getId(), totalNecessario, Integer::sum);
+            }
+        }
+
+        // 4. Verifica o estoque e realiza a retirada
+        for (Map.Entry<Long, Integer> entry : produtosParaRetirar.entrySet()) {
+            Long produtoId = entry.getKey();
+            Integer totalNecessario = entry.getValue();
+
+            Produto produto = produtoRepository.findById(produtoId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+
+            if (produto.getQuantidadeEstoque() < totalNecessario) {
+                // Se o estoque for insuficiente, lança uma exceção e o @Transactional fará o rollback.
+                throw new EstoqueInsuficienteException("Estoque insuficiente para o produto: " + produto.getNome());
+            }
+
+            // Retira do estoque
+            produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() - totalNecessario);
+            produtoRepository.save(produto); // Salva a alteração de estoque
+        }
+
+        return aula;
+    }
+
     @Override
     public void createAula(AulaDTO aulaDTO, UUID usuarioId) {
-        // Passo 1: Obter as receitas da Aula
-        List<Receita> receitas = null;
-        if (aulaDTO.getReceitaIds() != null && !aulaDTO.getReceitaIds().isEmpty()) {
-            receitas = receitaRepository.findAllById(aulaDTO.getReceitaIds());
-        }
 
-        // Passo 2: Consolidar a Quantidade Total Requerida por Produto
-        Map<Long, Integer> produtosNecessarios = new HashMap<>();
-
-        if (receitas != null) {
-            for (Receita receita : receitas) {
-                for (ReceitaProduto item : receita.getProdutos()) {
-                    Long produtoId = item.getProduto().getId();
-                    Integer quantidadeRequeridaNaReceita = item.getQuantidade();
-
-                    produtosNecessarios.merge(
-                            produtoId,
-                            quantidadeRequeridaNaReceita,
-                            Integer::sum
-                    );
-                }
-            }
-        }
-
-        // Passo 3: Verificar Estoque e Realizar a Baixa
-        for (Map.Entry<Long, Integer> entry : produtosNecessarios.entrySet()) {
-            Long produtoId = entry.getKey();
-            Integer quantidadeRequerida = entry.getValue();
-
-            // Buscar o produto.
-            Produto produto = produtoRepository.findById(produtoId)
-                    .orElseThrow(() -> new RuntimeException("Produto (ID: " + produtoId + ") não encontrado no sistema."));
-
-            // Checagem de Estoque
-            if (produto.getQuantidadeEstoque() < quantidadeRequerida) {
-                // Lançar exceção para forçar o ROLLBACK de TUDO (incluindo a aula e as receitas).
-                throw new EstoqueInsuficienteException(
-                        "Estoque insuficiente para o produto: " + produto.getNome() +
-                                ". Estoque atual: " + produto.getQuantidadeEstoque() +
-                                ", Requerido para a aula: " + quantidadeRequerida
-                );
-            }
-
-            // **AÇÃO OBRIGATÓRIA: ATUALIZAÇÃO/BAIXA DE ESTOQUE**
-            // O produto é uma entidade gerenciada. A alteração será persistida no COMMIT.
-            Integer novoEstoque = produto.getQuantidadeEstoque() - quantidadeRequerida;
-            produto.setQuantidadeEstoque(novoEstoque);
-
-            // Chamamos save explicitamente para garantir que a alteração seja marcada para persistência.
-            // Em muitos casos, se a entidade for gerenciada, a chamada a save é opcional,
-            // mas é uma boa prática para clareza em transações.
-            produtoRepository.save(produto);
-        }
-
-
-        // Passo 4: Persistência da Aula (Só ocorre se o estoque foi suficiente e a baixa foi registrada)
-        Aula aula = new Aula();
-        aula.setNome(aulaDTO.getNome());
-        aula.setDescricao(aulaDTO.getDescricao());
-        aula.setData(aulaDTO.getData());
-        aula.setInstrutor(aulaDTO.getInstrutor());
-        aula.setMateria(aulaDTO.getMateria());
-        aula.setAno(aulaDTO.getAno());
-        aula.setSemestre(aulaDTO.getSemestre());
-        aula.setModulo(aulaDTO.getModulo());
-        aula.setPeriodo(aulaDTO.getPeriodo());
-
-        // Relacionar usuário (fk_usuario_id)
-        User user = userRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Erro de Autenticação: Usuário logado não encontrado."));
-        aula.setUser(user);
-
-        // Relacionar receitas (N:N)
-        if (receitas != null) {
-            aula.setReceitas(receitas);
-        }
-
-        aulaRepository.save(aula);
-
-        // FIM DA TRANSAÇÃO: Se chegou aqui, a Aula é salva, e o estoque dos Produtos é atualizado (COMMIT).
-        // Se ocorrer uma exceção (mesmo que após o save do Produto), ambas as operações serão revertidas (ROLLBACK).
     }
 
     @Override
@@ -130,14 +131,15 @@ public class AulaServiceImpl implements AulaService {
             dto.setModulo(aula.getModulo());
             dto.setPeriodo(aula.getPeriodo());
 
-            // Mapear Receita IDs
-            dto.setReceitaIds(
-                    aula.getReceitas().stream().map(Receita::getId).toList()
+            dto.setReceitas(
+                    aula.getReceitas().stream()
+                            .map(ar -> new AulaReceitaItemDTO(ar.getReceita().getId(), ar.getQuantidade()))
+                            .toList()
             );
 
-             if (aula.getUser() != null) {
-                 dto.setUserId(aula.getUser().getId());
-             }
+            if (aula.getUser() != null) {
+                dto.setUserId(aula.getUser().getId());
+            }
 
             return dto;
         }).orElse(null);
@@ -157,23 +159,24 @@ public class AulaServiceImpl implements AulaService {
             dto.setModulo(aula.getModulo());
             dto.setPeriodo(aula.getPeriodo());
 
-            // Mapear Receita IDs
-            dto.setReceitaIds(
-                    aula.getReceitas().stream().map(Receita::getId).toList()
+            dto.setReceitas(
+                    aula.getReceitas().stream()
+                            .map(ar -> new AulaReceitaItemDTO(ar.getReceita().getId(), ar.getQuantidade()))
+                            .toList()
             );
 
-            // Não incluí o userId no DTO, mas se fosse necessário seria assim:
-            // if (aula.getUser() != null) {
-            //     dto.setUserId(aula.getUser().getId());
-            // }
+            // ... (Mapeamento opcional de userId) ...
 
             return dto;
         }).toList();
     }
 
+    @Transactional // Garante que a atualização seja atômica
     @Override
     public boolean updateAulaById(Long id, AulaDTO aulaDTO, UUID usuarioId) {
         return aulaRepository.findById(id).map(aula -> {
+            // 1. Atualiza campos simples
+            aula.setNome(aulaDTO.getNome()); // Adicionei o nome, que faltava
             aula.setDescricao(aulaDTO.getDescricao());
             aula.setData(aulaDTO.getData());
             aula.setInstrutor(aulaDTO.getInstrutor());
@@ -183,21 +186,75 @@ public class AulaServiceImpl implements AulaService {
             aula.setModulo(aulaDTO.getModulo());
             aula.setPeriodo(aulaDTO.getPeriodo());
 
-            // Atualizar receitas (N:N)
-            if (aulaDTO.getReceitaIds() != null) {
-                List<Receita> receitas = receitaRepository.findAllById(aulaDTO.getReceitaIds());
-                aula.setReceitas(receitas);
+            // 2. Lógica de Atualização de Receitas e Estoque
+
+            // REVERSÃO: Primeiro, calcule o impacto das receitas ANTIGAS e devolva o estoque
+            Map<Long, Integer> produtosParaDevolver = new HashMap<>();
+            for (AulaReceita ar : aula.getReceitas()) {
+                int quantidadeReceitaNaAula = ar.getQuantidade();
+                for (ReceitaProduto rp : ar.getReceita().getProdutos()) {
+                    int totalDevolvido = rp.getQuantidade() * quantidadeReceitaNaAula;
+                    produtosParaDevolver.merge(rp.getProduto().getId(), totalDevolvido, Integer::sum);
+                }
             }
 
-            // Não há campos de data/usuário de alteração automática no modelo Aula fornecido,
-            // mas manterei a estrutura do `ReceitaServiceImpl` para referência futura, se necessário.
+            // Devolve o estoque antes de apagar as relações
+            for (Map.Entry<Long, Integer> entry : produtosParaDevolver.entrySet()) {
+                Produto produto = produtoRepository.findById(entry.getKey()).orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado ao devolver estoque."));
+                produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() + entry.getValue());
+                produtoRepository.save(produto);
+            }
 
-            // Exemplo de atualização de usuário/data de alteração, se existissem no modelo Aula:
-            // aula.setUsuarioAlteracao(usuarioId.toString());
-            // (Se o modelo Aula tivesse @UpdateTimestamp, ele seria atualizado automaticamente)
+            // LIMPAR AS RECEITAS ANTIGAS (O CascadeType.ALL em Aula tratará de apagar as entidades AulaReceita)
+            aula.getReceitas().clear();
+            aulaRepository.save(aula); // Salva a aula para garantir que a lista esteja vazia antes de adicionar
 
+            // 3. RECRIAR (Lógica similar ao createAula)
+            Map<Long, Integer> produtosParaRetirar = new HashMap<>();
+            if (aulaDTO.getReceitas() != null) {
+                for (AulaReceitaItemDTO receitaItemDTO : aulaDTO.getReceitas()) {
+                    Receita receita = receitaRepository.findById(receitaItemDTO.getReceitaId())
+                            .orElseThrow(() -> new ResourceNotFoundException("Receita não encontrada"));
 
+                    // Cria e associa AulaReceita
+                    AulaReceita aulaReceita = new AulaReceita();
+                    aulaReceita.setAula(aula);
+                    aulaReceita.setReceita(receita);
+                    aulaReceita.setQuantidade(receitaItemDTO.getQuantidade());
+                    // Não precisa de save explícito se o cascade estiver configurado, mas manter para clareza
+                    aulaReceitaRepository.save(aulaReceita);
+
+                    aula.getReceitas().add(aulaReceita); // Adiciona na lista da Aula
+
+                    // Calcula o novo total para retirada
+                    for (ReceitaProduto rp : receita.getProdutos()) {
+                        int totalNecessario = rp.getQuantidade() * receitaItemDTO.getQuantidade();
+                        produtosParaRetirar.merge(rp.getProduto().getId(), totalNecessario, Integer::sum);
+                    }
+                }
+            }
+
+            // 4. RETIRADA (Nova Verificação e Ajuste de Estoque)
+            for (Map.Entry<Long, Integer> entry : produtosParaRetirar.entrySet()) {
+                Long produtoId = entry.getKey();
+                Integer totalNecessario = entry.getValue();
+
+                Produto produto = produtoRepository.findById(produtoId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+
+                if (produto.getQuantidadeEstoque() < totalNecessario) {
+                    // Se faltar estoque, lança exceção e faz ROLLBACK de TODAS as alterações (incluindo a devolução)
+                    throw new EstoqueInsuficienteException("Estoque insuficiente para o produto: " + produto.getNome());
+                }
+
+                // Retira do estoque
+                produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() - totalNecessario);
+                produtoRepository.save(produto);
+            }
+
+            // 5. Salva a Aula (as alterações no estoque e nas relações já foram salvas dentro do loop/transação)
             aulaRepository.save(aula);
+
             return true;
         }).orElse(false);
     }

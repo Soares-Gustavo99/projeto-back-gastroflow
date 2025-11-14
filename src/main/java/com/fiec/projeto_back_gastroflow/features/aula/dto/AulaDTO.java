@@ -1,5 +1,6 @@
 package com.fiec.projeto_back_gastroflow.features.aula.dto;
 
+import com.fiec.projeto_back_gastroflow.features.aulaReceitas.AulaReceitaItemDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -36,5 +37,4 @@ public class AulaDTO {
 
     private UUID userId;
 
-    private List<Long> ReceitaIds;//Relação N:N
-}
+    private List<AulaReceitaItemDTO> receitas;}
