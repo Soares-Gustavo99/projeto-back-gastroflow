@@ -2,6 +2,7 @@ package com.fiec.projeto_back_gastroflow.features.products.controllers;
 
 
 import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoDTO;
+import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoPagedResponseDTO;
 import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoSearch;
 import com.fiec.projeto_back_gastroflow.features.products.services.impl.ProdutoServiceImpl;
 import lombok.AllArgsConstructor;
@@ -105,7 +106,7 @@ public class ProdutoController {
     }
 
     @GetMapping("/filters/all")
-    public List<ProdutoDTO> getProductById(ProdutoSearch productSearch){
+    public ProdutoPagedResponseDTO getProductById(ProdutoSearch productSearch){
         return produtoService.findAllWithQueries(productSearch);
     }
 

@@ -2,12 +2,15 @@ package com.fiec.projeto_back_gastroflow.features.products.services.impl;
 
 
 import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoDTO;
+import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoPagedResponseDTO;
 import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoSearch;
 import com.fiec.projeto_back_gastroflow.features.products.models.Produto;
+import com.fiec.projeto_back_gastroflow.features.products.models.ProdutoPagedResponse;
 import com.fiec.projeto_back_gastroflow.features.products.repositories.ProdutoRepository;
 import com.fiec.projeto_back_gastroflow.features.products.services.ProdutoService;
 import com.fiec.projeto_back_gastroflow.utils.ImageUtils;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -116,13 +119,15 @@ public class ProdutoServiceImpl implements ProdutoService {
     }
 
     @Override
-    public List<ProdutoDTO> findAllWithQueries(ProdutoSearch produtoSearch) {
-        List<Produto> produtos = produtoRepository.findProdutos(produtoSearch);
+    public ProdutoPagedResponseDTO findAllWithQueries(ProdutoSearch produtoSearch) {
+        Page<Produto> produtoResponse = produtoRepository.findProdutos(produtoSearch);
 
-        if (CollectionUtils.isEmpty(produtos)) {
-            return List.of();
+
+        if (CollectionUtils.isEmpty(produtoResponse.getContent())) {
+            return new ProdutoPagedResponseDTO();
         } else {
-            return produtos.stream()
+            List<ProdutoDTO> produtosDTOS =
+             produtoResponse.getContent().stream()
                     .map(produto -> ProdutoDTO.builder()
                             .nome(produto.getNome())
                             .categoria(produto.getCategoria())
@@ -132,6 +137,11 @@ public class ProdutoServiceImpl implements ProdutoService {
                             .build()
                     )
                     .toList();
+            ProdutoPagedResponseDTO produtoPagedResponseDTO = new ProdutoPagedResponseDTO();
+            produtoPagedResponseDTO.setProdutos(produtosDTOS);
+            produtoPagedResponseDTO.setTotal(produtoResponse.getTotalElements());
+            produtoPagedResponseDTO.setTotalPages((long) produtoResponse.getTotalPages());
+            return produtoPagedResponseDTO;
         }
     }
 

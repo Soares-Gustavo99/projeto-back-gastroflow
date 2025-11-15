@@ -4,6 +4,8 @@ import com.fiec.projeto_back_gastroflow.features.supplier.models.Supplier;
 import com.fiec.projeto_back_gastroflow.features.supplier.repositories.SupplierRepository;
 import com.fiec.projeto_back_gastroflow.features.supplier.services.SupplierService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,8 +33,8 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
-    public List<Supplier> findAll() {
-        return supplierRepository.findAll();
+    public Page<Supplier> findAll(Pageable pageable) {
+        return supplierRepository.findAll(pageable);
     }
 
     @Override

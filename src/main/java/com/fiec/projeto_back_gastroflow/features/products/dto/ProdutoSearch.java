@@ -24,4 +24,8 @@ public class ProdutoSearch {
     private SortOrder sortOrder;
 
     private String sortBy;
+
+    private Integer pageNumber = 0;
+
+    private Integer pageSize = 10;
 }

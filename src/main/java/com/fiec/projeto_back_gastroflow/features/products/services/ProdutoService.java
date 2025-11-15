@@ -1,6 +1,7 @@
 package com.fiec.projeto_back_gastroflow.features.products.services;
 
 import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoDTO;
+import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoPagedResponseDTO;
 import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoSearch;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public interface ProdutoService  {
 
     void deleteProdutoById(Long id);
 
-    List<ProdutoDTO> findAllWithQueries(ProdutoSearch produtoSearch);
+    ProdutoPagedResponseDTO findAllWithQueries(ProdutoSearch produtoSearch);
 
 
 }

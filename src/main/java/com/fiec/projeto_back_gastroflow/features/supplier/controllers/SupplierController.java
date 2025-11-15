@@ -5,6 +5,8 @@ import com.fiec.projeto_back_gastroflow.features.supplier.models.Supplier;
 import com.fiec.projeto_back_gastroflow.features.supplier.services.SupplierService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -54,8 +56,12 @@ public class SupplierController {
     })
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','STANDARD','GUEST')")
-    public List<Supplier> getAllSuppliers() {
-        return supplierService.findAll();
+
+    public Page<Supplier> getAllSuppliers(
+            @RequestParam(value = "pageNumber", defaultValue = "0") int pageNumber,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize
+    ) {
+        return supplierService.findAll(PageRequest.of(pageNumber, pageSize));
     }
 
     @Operation(summary = "Busca um fornecedor por ID", description = "Permitido para 'ADMIN', 'STANDARD' ou 'GUEST'.")
