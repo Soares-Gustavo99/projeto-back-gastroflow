@@ -33,12 +33,12 @@ public class AulaServiceImpl implements AulaService {
     private final AulaReceitaRepository aulaReceitaRepository;
 
     @Transactional
-    public Aula createAula(AulaDTO aulaDTO) {
+    public Aula createAula(AulaDTO aulaDTO , UUID usuarioId) {
 
         // 1. Mapeamento Manual do DTO para a Entidade Aula (usando @Builder)
 
         // 1a. Busca o Usuário (necessário para a relação ManyToOne)
-        User user = userRepository.findById(aulaDTO.getUserId())
+        User user = userRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
         // 1b. Cria a entidade Aula usando o Builder
@@ -112,10 +112,8 @@ public class AulaServiceImpl implements AulaService {
         return aula;
     }
 
-    @Override
-    public void createAula(AulaDTO aulaDTO, UUID usuarioId) {
 
-    }
+
 
     @Override
     public AulaDTO getById(Long id) {
