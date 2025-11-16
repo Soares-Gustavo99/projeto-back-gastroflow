@@ -48,9 +48,6 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/images/**",
                                 "/v1/api/auth/**",
-                                "/v1/api/users/admin/**",
-                                "/v1/api/users/standard/**",
-                                "/v1/api/users/guest/**",
                                 "/actuator/health",
                                 "/v1/api/notifications/sendToUser"
                         ).permitAll()
@@ -77,3 +74,8 @@ public class SecurityConfig {
     }
 
 }
+
+//
+//                                "/v1/api/users/admin/**",
+//                                        "/v1/api/users/standard/**",
+//                                        "/v1/api/users/guest/**",

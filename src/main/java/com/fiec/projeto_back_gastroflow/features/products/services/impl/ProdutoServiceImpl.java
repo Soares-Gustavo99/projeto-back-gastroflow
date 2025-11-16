@@ -129,6 +129,7 @@ public class ProdutoServiceImpl implements ProdutoService {
             List<ProdutoDTO> produtosDTOS =
              produtoResponse.getContent().stream()
                     .map(produto -> ProdutoDTO.builder()
+                            .id(produto.getId())
                             .nome(produto.getNome())
                             .categoria(produto.getCategoria())
                             .quantidadeEstoque(produto.getQuantidadeEstoque())
