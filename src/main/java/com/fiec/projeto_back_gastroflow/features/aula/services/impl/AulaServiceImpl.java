@@ -120,6 +120,7 @@ public class AulaServiceImpl implements AulaService {
         return aulaRepository.findById(id).map(aula -> {
             AulaDTO dto = new AulaDTO();
             dto.setId(aula.getId());
+            dto.setNome(aula.getNome());
             dto.setDescricao(aula.getDescricao());
             dto.setData(aula.getData());
             dto.setInstrutor(aula.getInstrutor());
@@ -131,7 +132,7 @@ public class AulaServiceImpl implements AulaService {
 
             dto.setReceitas(
                     aula.getReceitas().stream()
-                            .map(ar -> new AulaReceitaItemDTO(ar.getReceita().getId(), ar.getQuantidade()))
+                            .map(ar -> new AulaReceitaItemDTO(ar.getReceita().getId(),ar.getReceita().getNome(), ar.getQuantidade()))
                             .toList()
             );
 
@@ -148,6 +149,7 @@ public class AulaServiceImpl implements AulaService {
         return aulaRepository.findAll().stream().map(aula -> {
             AulaDTO dto = new AulaDTO();
             dto.setId(aula.getId());
+            dto.setNome(aula.getNome());
             dto.setDescricao(aula.getDescricao());
             dto.setData(aula.getData());
             dto.setInstrutor(aula.getInstrutor());
@@ -159,7 +161,7 @@ public class AulaServiceImpl implements AulaService {
 
             dto.setReceitas(
                     aula.getReceitas().stream()
-                            .map(ar -> new AulaReceitaItemDTO(ar.getReceita().getId(), ar.getQuantidade()))
+                            .map(ar -> new AulaReceitaItemDTO(ar.getReceita().getId(),ar.getReceita().getNome(), ar.getQuantidade()))
                             .toList()
             );
 
