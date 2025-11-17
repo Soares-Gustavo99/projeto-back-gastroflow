@@ -19,12 +19,13 @@ public class ReceitaProduto {
     @EmbeddedId
     private ReceitaProdutoId id;
 
+    private String nomeProduto;
+
     // Campo adicional para a quantidade do produto na receita
     private Integer quantidade;
 
     // RELAÇÃO MANY-TO-ONE: Muitos ReceitaProduto para uma Receita
     @ManyToOne(fetch = FetchType.LAZY)
-
     // Indica a coluna de chave estrangeira no banco (fk_receita_id)
     @MapsId("receitaId") // Mapeia o atributo 'receitaId' da chave composta
     @JoinColumn(name = "fk_receita_id")

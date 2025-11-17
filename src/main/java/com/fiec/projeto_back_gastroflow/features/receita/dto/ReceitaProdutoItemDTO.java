@@ -12,6 +12,8 @@ public class ReceitaProdutoItemDTO {
     // ID do Produto (Ingrediente)
     private Long produtoId;
 
+    private String nomeProduto;
+
     // A quantidade específica desse produto na receita
     private Integer quantidade;
 }
