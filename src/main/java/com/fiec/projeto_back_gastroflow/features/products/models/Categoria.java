@@ -4,5 +4,6 @@ public enum Categoria {
     estocaveis,
     hortifruti,
     acougues,
-    laticinios
+    laticinios,
+    TODAS_AS_CATEGORIAS,
 }

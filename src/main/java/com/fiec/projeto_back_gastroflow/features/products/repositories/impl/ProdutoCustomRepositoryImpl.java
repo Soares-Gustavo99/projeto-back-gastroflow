@@ -113,10 +113,12 @@ public class ProdutoCustomRepositoryImpl implements ProdutoCustomRepository {
             predicates.add(nomePredicate);
         }
 
-        // Filtro: Categoria (busca exata)
         if (produtoSearch.getCategoria() != null) {
-            Predicate categoriaPredicate = cb.equal(produto.get("categoria"), produtoSearch.getCategoria());
-            predicates.add(categoriaPredicate);
+
+            if (!produtoSearch.getCategoria().name().equals("TODAS_AS_CATEGORIAS")) { // <<< NOVO CHECK
+                Predicate categoriaPredicate = cb.equal(produto.get("categoria"), produtoSearch.getCategoria());
+                predicates.add(categoriaPredicate);
+            }
         }
 
         // Filtro: Quantidade em estoque (igualdade exata)
