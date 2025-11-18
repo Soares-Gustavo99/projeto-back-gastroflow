@@ -116,7 +116,7 @@ public class ReceitaServiceImpl implements ReceitaService {
 
             dto.setProdutos(
                     receita.getProdutos().stream()
-                            .map(rp -> new ReceitaProdutoItemDTO(rp.getProduto().getId(), rp.getNomeProduto(), rp.getQuantidade()))
+                            .map(rp -> new ReceitaProdutoItemDTO(rp.getProduto().getId(), rp.getProduto().getNome(), rp.getQuantidade()))
                             .toList()
             );
             // FIM DA MUDANÇA CRÍTICA
@@ -146,7 +146,7 @@ public class ReceitaServiceImpl implements ReceitaService {
 
             dto.setProdutos(
                     receita.getProdutos().stream()
-                            .map(rp -> new ReceitaProdutoItemDTO(rp.getProduto().getId(), rp.getNomeProduto() rp.getQuantidade()))
+                            .map(rp -> new ReceitaProdutoItemDTO(rp.getProduto().getId(), rp.getProduto().getNome(), rp.getQuantidade()))
                             .toList()
             );
             // FIM DA MUDANÇA CRÍTICA

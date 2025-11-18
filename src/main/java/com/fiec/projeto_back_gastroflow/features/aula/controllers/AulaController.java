@@ -78,7 +78,7 @@ public class AulaController {
             @ApiResponse(responseCode = "403", description = "Acesso negado.")
     })
     @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STANDARD')")
     public ResponseEntity<String> updateAulaById(
             @AuthenticationPrincipal User userLogado,
             @Parameter(description = "ID da aula a ser atualizada.") @PathVariable Long id,
@@ -103,7 +103,7 @@ public class AulaController {
             @ApiResponse(responseCode = "403", description = "Acesso negado.")
     })
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STANDARD' )")
     public ResponseEntity<String> deleteAulaById(@Parameter(description = "ID da aula a ser deletada.") @PathVariable Long id) {
         // ... (Corpo do método omitido)
         return null; // Apenas para compilar

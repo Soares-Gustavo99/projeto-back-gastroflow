@@ -19,8 +19,6 @@ public class ReceitaProduto {
     @EmbeddedId
     private ReceitaProdutoId id;
 
-    private String nomeProduto;
-
     // Campo adicional para a quantidade do produto na receita
     private Integer quantidade;
 

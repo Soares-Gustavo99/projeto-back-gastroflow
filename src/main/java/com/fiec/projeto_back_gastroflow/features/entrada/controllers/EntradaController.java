@@ -108,7 +108,7 @@ public class EntradaController {
     })
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping()
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STANDARD')")
     public void deleteEntradaById(@Parameter(description = "ID da Entrada a ser deletada.") @RequestParam Long id) {
         entradaService.deleteEntradaById(id);
     }

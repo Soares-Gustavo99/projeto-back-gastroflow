@@ -77,7 +77,7 @@ public class ReceitaController {
             @ApiResponse(responseCode = "403", description = "Acesso negado.")
     })
     @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STANDARD' )")
     public ResponseEntity<String> updateReceitaById(
             @AuthenticationPrincipal User userLogado,
             @Parameter(description = "ID da receita a ser atualizada.") @PathVariable Long id,
@@ -102,7 +102,7 @@ public class ReceitaController {
             @ApiResponse(responseCode = "403", description = "Acesso negado.")
     })
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STANDARD')")
     public ResponseEntity<String> deleteReceitaById(@Parameter(description = "ID da receita a ser deletada.") @PathVariable Long id) {
         // ... (Corpo do método omitido)
         return null; // Apenas para compilar
