@@ -162,6 +162,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
         myUserDto.setPicture(user.getPicture());
         myUserDto.setEmail(user.getEmail());
+        myUserDto.setNome(user.getName());
         return myUserDto;
     }
 
