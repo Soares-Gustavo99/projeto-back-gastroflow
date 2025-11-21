@@ -4,11 +4,14 @@ import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoDTO;
 import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoPagedResponseDTO;
 import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoSearch;
 
+import java.io.InputStream;
 import java.util.List;
 
 public interface ProdutoService  {
 
     void createProduto(ProdutoDTO produtoDTO);
+
+    void createProductsFromCsv(InputStream inputStream);
 
     ProdutoDTO getById(Long id);
 

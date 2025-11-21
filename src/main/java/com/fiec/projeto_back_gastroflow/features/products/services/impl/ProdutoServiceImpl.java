@@ -4,17 +4,24 @@ package com.fiec.projeto_back_gastroflow.features.products.services.impl;
 import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoDTO;
 import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoPagedResponseDTO;
 import com.fiec.projeto_back_gastroflow.features.products.dto.ProdutoSearch;
-import com.fiec.projeto_back_gastroflow.features.products.models.Produto;
-import com.fiec.projeto_back_gastroflow.features.products.models.ProdutoPagedResponse;
+import com.fiec.projeto_back_gastroflow.features.products.models.*;
 import com.fiec.projeto_back_gastroflow.features.products.repositories.ProdutoRepository;
 import com.fiec.projeto_back_gastroflow.features.products.services.ProdutoService;
+import com.fiec.projeto_back_gastroflow.features.products.models.ProdutoCSVRepresentation;
 import com.fiec.projeto_back_gastroflow.utils.ImageUtils;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -40,6 +47,58 @@ public class ProdutoServiceImpl implements ProdutoService {
         );
 
         produtoRepository.save(produto);
+    }
+
+
+    @Override
+    @Transactional
+    public void createProductsFromCsv(InputStream inputStream) {
+
+        List<ProdutoCSVRepresentation> produtosCsv = new ArrayList<>();
+
+        // 1. LEITURA E PARSING DO CSV (Usando OpenCSV)
+        // O InputStream já é o parâmetro, podemos usá-lo diretamente
+        try (Reader reader = new InputStreamReader(inputStream, "UTF-8")) {
+
+            CsvToBean<ProdutoCSVRepresentation> csvToBean = new CsvToBeanBuilder<ProdutoCSVRepresentation>(reader)
+                    .withType(ProdutoCSVRepresentation.class)
+                    .withIgnoreLeadingWhiteSpace(true)
+                    .withSkipLines(0)
+                    .build();
+
+            produtosCsv = csvToBean.parse();
+        } catch (Exception e) {
+            // Falha na leitura do arquivo (IO, formato do CSV, etc.)
+            throw new RuntimeException("Falha ao processar o arquivo CSV: " + e.getMessage(), e);
+        }
+
+        // 2. CONVERSÃO E PERSISTÊNCIA DOS DADOS
+        try {
+            for (ProdutoCSVRepresentation csvProduto : produtosCsv) {
+
+                // Converte as strings para ENUMS
+                // Importante: Verifique se a capitalização (toUpperCase/toLowerCase)
+                // está correta em relação aos nomes dos seus Enums Java.
+                Categoria categoria = Categoria.valueOf(csvProduto.getCategoria().toLowerCase());
+                UnidadeMedida unidadeMedida = UnidadeMedida.valueOf(csvProduto.getUnidadeMedida().toLowerCase());
+
+                // Cria e popula a entidade Produto
+                Produto produto = new Produto();
+                produto.setNome(csvProduto.getNome());
+                produto.setQuantidadeEstoque(csvProduto.getQuantidadeEstoque());
+                produto.setCategoria(categoria);
+                produto.setUnidadeMedida(unidadeMedida);
+
+                produtoRepository.save(produto);
+            }
+        } catch (IllegalArgumentException e) {
+            // Captura se o valor da Categoria ou UnidadeMedida no CSV for inválido
+            String erroMsg = "Valor inválido no CSV para Categoria ou Unidade de Medida. Erro: " + e.getMessage();
+            throw new RuntimeException(erroMsg, e);
+        } catch (Exception ex) {
+            // Outras exceções durante a persistência
+            throw new RuntimeException("Erro ao salvar produtos no banco de dados: " + ex.getMessage(), ex);
+        }
     }
 
     // Buscar Produto por ID

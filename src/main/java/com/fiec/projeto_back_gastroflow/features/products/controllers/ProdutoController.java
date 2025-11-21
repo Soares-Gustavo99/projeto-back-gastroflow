@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -41,6 +42,27 @@ public class ProdutoController {
     public void createProduto(@RequestBody ProdutoDTO produtoDTO){
 
         produtoService.createProduto(produtoDTO);
+    }
+
+    @Operation(summary = "Importa produtos via CSV",
+            description = "Permite o upload de um arquivo CSV para criação em massa de produtos no estoque. Permitido apenas para 'ADMIN'.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Produtos importados com sucesso. (Retorno 'void' com Status 200)"),
+            @ApiResponse(responseCode = "400", description = "O arquivo está vazio, ou o formato dos dados (ENUMs, números) no CSV está inválido."),
+            @ApiResponse(responseCode = "403", description = "Acesso negado (Usuário não é ADMIN)."),
+            @ApiResponse(responseCode = "500", description = "Erro interno no processamento ou persistência dos dados.")
+    })
+    @ResponseStatus(HttpStatus.OK) // Status 200 OK para operações bem-sucedidas sem retorno de corpo.
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PostMapping(value = "/csv", consumes = "multipart/form-data") // Especifica o tipo de requisição
+    public void createProductsFromCsv(
+            @Parameter(description = "Arquivo CSV contendo os dados dos produtos. Deve ser enviado como 'multipart/form-data'.", required = true)
+            @RequestParam("inputFile") MultipartFile file) throws IOException {
+
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("O arquivo de entrada não pode estar vazio.");
+        }
+        produtoService.createProductsFromCsv(file.getInputStream());
     }
 
     @Operation(summary = "Busca um produto por ID", description = "Busca detalhada por ID. Permitido para 'ADMIN', 'STANDARD' ou 'GUEST'.")
