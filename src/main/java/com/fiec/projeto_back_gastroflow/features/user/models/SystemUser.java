@@ -22,6 +22,6 @@ public abstract class SystemUser {
     @Column(updatable = false, nullable = false)
     private UUID id;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     User user;
 }
