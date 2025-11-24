@@ -167,7 +167,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     /**
-     * Busca o usuário e atualiza seu fcmToken.
+     * Busca o usuário e atualiza seu fcmTokendsds.
      * @param userId O ID do usuário logado.
      * @param request O DTO contendo o novo token FCM.
      * @return O User atualizado.
