@@ -39,7 +39,7 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Override
     public Page<Supplier> findAllPageble(Pageable pageable) {
-        return supplierRepository.findAll(pageable);
+        return supplierRepository.findAllPageble(pageable);
     }
 
 

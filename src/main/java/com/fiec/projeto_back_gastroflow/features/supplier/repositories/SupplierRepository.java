@@ -12,5 +12,5 @@ import java.util.UUID;
 @Repository
 public interface SupplierRepository extends JpaRepository<Supplier, Long> {
     Optional<Supplier> findByRazaoSocial(String razaoSocial);
-    Page<Supplier> findAll(Pageable pageable);
+    Page<Supplier> findAllPageble(Pageable pageable);
 }
