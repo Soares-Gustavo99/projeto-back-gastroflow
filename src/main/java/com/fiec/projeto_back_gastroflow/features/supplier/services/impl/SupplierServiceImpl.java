@@ -33,15 +33,14 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
-    public List<Supplier> getAll() {
-        return supplierRepository.findAll();
+    public Page<Supplier> findAllPageble(Pageable pageable) {
+        return supplierRepository.findAll(pageable);
     }
 
     @Override
-    public Page<Supplier> findAllPageble(Pageable pageable) {
-        return supplierRepository.findAllPageble(pageable);
+    public List<Supplier> getAll() {
+        return supplierRepository.findAll();
     }
-
 
     @Override
     public Supplier update(Long id, Supplier updatedSupplier) {

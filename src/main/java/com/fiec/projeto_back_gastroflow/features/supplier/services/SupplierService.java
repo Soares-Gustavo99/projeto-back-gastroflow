@@ -11,9 +11,8 @@ import java.util.UUID;
 public interface SupplierService {
     Supplier save(Supplier supplier);
     Optional<Supplier> findById(Long id);
-    Page<Supplier> findAllPageble(Pageable pageable);
     Supplier update(Long id, Supplier updatedSupplier);
     void deleteById(Long id);
-
+    Page<Supplier> findAllPageble(Pageable pageable); // Seu nome preferido
     List<Supplier> getAll();
 }
