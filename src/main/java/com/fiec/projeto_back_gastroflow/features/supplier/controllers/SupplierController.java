@@ -61,8 +61,22 @@ public class SupplierController {
             @RequestParam(value = "pageNumber", defaultValue = "0") int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize
     ) {
-        return supplierService.findAll(PageRequest.of(pageNumber, pageSize));
+        return supplierService.findAllPageble(PageRequest.of(pageNumber, pageSize));
     }
+
+    @Operation(summary = "Lista todos os fornecedores", description = "Permitido para 'ADMIN', 'STANDARD' ou 'GUEST'.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de fornecedores retornada com sucesso.")
+    })
+    @GetMapping("/listar")
+    @PreAuthorize("hasAnyRole('ADMIN','STANDARD','GUEST')")
+
+    public List<Supplier> getAll(
+    ) {
+        return supplierService.getAll();
+    }
+
+
 
     @Operation(summary = "Busca um fornecedor por ID", description = "Permitido para 'ADMIN', 'STANDARD' ou 'GUEST'.")
     @ApiResponses(value = {
